@@ -1,0 +1,23 @@
+{
+  "author": "Marcel Timmerman",
+  "authors": [
+    "Marcel Timmerman"
+  ],
+  "depends": [
+  ],
+  "description": "Unicode stringprep",
+  "license": "The Artistic License 2.0",
+  "name": "Unicode::Stringprep",
+  "perl": "6.c",
+  "provides": {
+    "Unicode::Stringprep":              "lib/Unicode/Stringprep.pm6",
+    "Unicode::Stringprep::BIDI":        "lib/Unicode/Stringprep.pm6",
+    "Unicode::Stringprep::Common":      "lib/Unicode/Stringprep.pm6",
+    "Unicode::Stringprep::Mapping":     "lib/Unicode/Stringprep.pm6",
+    "Unicode::Stringprep::Prohibited":  "lib/Unicode/Stringprep.pm6",
+    "Unicode::Stringprep::Unassigned":  "lib/Unicode/Stringprep.pm6"
+
+  },
+  "source-url": "git://github.com/MARTIMM/unicode-stringprep.git",
+  "version": "v0.0.1"
+}
