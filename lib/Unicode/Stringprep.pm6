@@ -1,32 +1,21 @@
-package Unicode::Stringprep;
-
-require 5.008_003;
-
-use strict;
-use utf8;
-use warnings;
-
-our $VERSION = "1.105";
-$VERSION = eval $VERSION;
-
-require Exporter;
-our @ISA    = qw(Exporter);
-our @EXPORT = qw(stringprep);
-
-use Carp;
-
-use Unicode::Normalize();
+use v6.c;
 
 use Unicode::Stringprep::Unassigned;
 use Unicode::Stringprep::Mapping;
 use Unicode::Stringprep::Prohibited;
 use Unicode::Stringprep::BiDi;
 
-sub new {
-  my $self  = shift;
-  my $class = ref($self) || $self;
-  return bless _compile(@_), $class;
-}
+#-------------------------------------------------------------------------------
+unit package Unicode;
+
+#-------------------------------------------------------------------------------
+class Stringprep {
+
+  submethod BUILD ( ) {
+    my $self  = shift;
+    my $class = ref($self) || $self;
+    return bless _compile(@_), $class;
+  }
 
 ## Here be eval dragons
 
