@@ -5,9 +5,9 @@ use Unicode::Stringprep::Common;
 unit package Unicode;
 
 #-------------------------------------------------------------------------------
-class Stringprep::Mapping {
+module Stringprep::Mapping {
 
-  has Array $.B1 = mk-map(q:to/ENDTABLE/);
+  our $B1 = mk-map(q:to/ENDTABLE/);
      00AD; ; Map to nothing
      034F; ; Map to nothing
      1806; ; Map to nothing
@@ -37,7 +37,7 @@ class Stringprep::Mapping {
      FEFF; ; Map to nothing
   ENDTABLE
 
-  has Array $.B2 = mk-map(q:to/ENDTABLE/);
+  our $B2 = mk-map(q:to/ENDTABLE/);
      0041; 0061; Case map
      0042; 0062; Case map
      0043; 0063; Case map
@@ -1411,7 +1411,7 @@ class Stringprep::Mapping {
      1D7BB; 03C3; Additional folding
   ENDTABLE
 
-  has Array $.B3 = mk-map(q:to/ENDTABLE/);
+  our $B3 = mk-map(q:to/ENDTABLE/);
      0041; 0061; Case map
      0042; 0062; Case map
      0043; 0063; Case map

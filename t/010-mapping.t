@@ -5,10 +5,10 @@ use Test;
 
 use Unicode::Stringprep::Mapping;
 
-my Unicode::Stringprep::Mapping $mapping .= new;
-say $mapping.^attributes;
+my Array $B1 = $Unicode::Stringprep::Mapping::B1;
+my Array $B2 = $Unicode::Stringprep::Mapping::B2;
 
-is $mapping.B1[0], 173, "Map {$mapping.B1[0]} to '{$mapping.B1[1]}'";
-is $mapping.B2[0], 65, "Map {$mapping.B2[0]} to '{$mapping.B2[1]}'";
+is $B1[0], 173, "Map {$B1[0]} to '{$B1[1]}'";
+is $B2[0], 65, "Map {$B2[0]} to '{$B2[1]}'";
 
 done-testing;

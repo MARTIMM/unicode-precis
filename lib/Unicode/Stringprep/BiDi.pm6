@@ -5,9 +5,9 @@ use Unicode::Stringprep::Common;
 unit package Unicode;
 
 #-------------------------------------------------------------------------------
-class Stringprep::BiDi {
+module Stringprep::BiDi {
 
-  has Array $.D1 = mk-set(q:to/ENDTABLE/);
+  our $D1 = mk-set(q:to/ENDTABLE/);
      05BE
      05C0
      05C3
@@ -44,7 +44,7 @@ class Stringprep::BiDi {
      FE76-FEFC
   ENDTABLE
 
-  has Array $.D2 = mk-set(q:to/ENDTABLE/);
+  our $D2 = mk-set(q:to/ENDTABLE/);
      0041-005A
      0061-007A
      00AA

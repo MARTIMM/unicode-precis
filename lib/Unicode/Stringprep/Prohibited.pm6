@@ -5,13 +5,13 @@ use Unicode::Stringprep::Common;
 unit package Unicode;
 
 #-------------------------------------------------------------------------------
-class Stringprep::Prohibited {
+module Stringprep::Prohibited {
 
-  has Array $.C11 = mk-set(q:to/ENDTABLE/);
+  our $C11 = mk-set(q:to/ENDTABLE/);
      0020; SPACE
   ENDTABLE
 
-  has Array $.C12 = mk-set(q:to/ENDTABLE/);
+  our $C12 = mk-set(q:to/ENDTABLE/);
      00A0; NO-BREAK SPACE
      1680; OGHAM SPACE MARK
      2000; EN QUAD
@@ -31,12 +31,12 @@ class Stringprep::Prohibited {
      3000; IDEOGRAPHIC SPACE
   ENDTABLE
 
-  has Array $.C21 = mk-set(q:to/ENDTABLE/);
+  our $C21 = mk-set(q:to/ENDTABLE/);
      0000-001F; [CONTROL CHARACTERS]
      007F; DELETE
   ENDTABLE
 
-  has Array $.C22 = mk-set(q:to/ENDTABLE/);
+  our $C22 = mk-set(q:to/ENDTABLE/);
      0080-009F; [CONTROL CHARACTERS]
      06DD; ARABIC ENDTABLE OF AYAH
      070F; SYRIAC ABBREVIATION MARK
@@ -55,13 +55,13 @@ class Stringprep::Prohibited {
      1D173-1D17A; [MUSICAL CONTROL CHARACTERS]
   ENDTABLE
 
-  has Array $.C3 = mk-set(q:to/ENDTABLE/);
+  our $C3 = mk-set(q:to/ENDTABLE/);
      E000-F8FF; [PRIVATE USE, PLANE 0]
      F0000-FFFFD; [PRIVATE USE, PLANE 15]
      100000-10FFFD; [PRIVATE USE, PLANE 16]
   ENDTABLE
 
-  has Array $.C4 = mk-set(q:to/ENDTABLE/);
+  our $C4 = mk-set(q:to/ENDTABLE/);
      FDD0-FDEF; [NONCHARACTER CODE POINTS]
      FFFE-FFFF; [NONCHARACTER CODE POINTS]
      1FFFE-1FFFF; [NONCHARACTER CODE POINTS]
@@ -82,11 +82,11 @@ class Stringprep::Prohibited {
      10FFFE-10FFFF; [NONCHARACTER CODE POINTS]
   ENDTABLE
 
-  has Array $.C5 = mk-set(q:to/ENDTABLE/);
+  our $C5 = mk-set(q:to/ENDTABLE/);
      D800-DFFF; [SURROGATE CODES]
   ENDTABLE
 
-  has Array $.C6 = mk-set(q:to/ENDTABLE/);
+  our $C6 = mk-set(q:to/ENDTABLE/);
      FFF9; INTERLINEAR ANNOTATION ANCHOR
      FFFA; INTERLINEAR ANNOTATION SEPARATOR
      FFFB; INTERLINEAR ANNOTATION TERMINATOR
@@ -94,11 +94,11 @@ class Stringprep::Prohibited {
      FFFD; REPLACEMENT CHARACTER
   ENDTABLE
 
-  has Array $.C7 = mk-set(q:to/ENDTABLE/);
+  our $C7 = mk-set(q:to/ENDTABLE/);
      2FF0-2FFB; [IDEOGRAPHIC DESCRIPTION CHARACTERS]
   ENDTABLE
 
-  has Array $.C8 = mk-set(q:to/ENDTABLE/);
+  our $C8 = mk-set(q:to/ENDTABLE/);
      0340; COMBINING GRAVE TONE MARK
      0341; COMBINING ACUTE TONE MARK
      200E; LEFT-TO-RIGHT MARK
@@ -116,7 +116,7 @@ class Stringprep::Prohibited {
      206F; NOMINAL DIGIT SHAPES
   ENDTABLE
 
-  has Array $.C9 = mk-set(q:to/ENDTABLE/);
+  our $C9 = mk-set(q:to/ENDTABLE/);
      E0001; LANGUAGE TAG
      E0020-E007F; [TAGGING CHARACTERS]
   ENDTABLE

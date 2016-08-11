@@ -5,9 +5,9 @@ use Unicode::Stringprep::Common;
 unit package Unicode;
 
 #-------------------------------------------------------------------------------
-class Stringprep::Unassigned {
+module Stringprep::Unassigned {
 
-  has Array $.A1 = mk-set(q:to/ENDTABLE/);
+  our $A1 = mk-set(q:to/ENDTABLE/);
      0221
      0234-024F
      02AE-02AF

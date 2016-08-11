@@ -5,11 +5,11 @@ use Test;
 
 use Unicode::Stringprep::Prohibited;
 
-my Unicode::Stringprep::Prohibited $prohibited .= new;
-#say $prohibited.^attributes;
+my Array $C4 = $Unicode::Stringprep::Prohibited::C4;
+my Array $C8 = $Unicode::Stringprep::Prohibited::C8;
 
-is $prohibited.C4[0], 64976, "Map {$prohibited.C4[0]} to '{$prohibited.C4[1]}'";
-is $prohibited.C8[0], 832, "Map {$prohibited.C8[0]} to '{$prohibited.C8[1]//'-'}'";
+is $C4[0], 64976, "Map {$C4[0]} to '{$C4[1]}'";
+is $C8[0], 832, "Map {$C8[0]} to '{$C8[1]//'-'}'";
 
 
 done-testing;

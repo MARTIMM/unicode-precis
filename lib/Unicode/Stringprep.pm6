@@ -1,9 +1,9 @@
 use v6.c;
 
-use Unicode::Stringprep::Unassigned;
+use Unicode::Stringprep::BiDi;
 use Unicode::Stringprep::Mapping;
 use Unicode::Stringprep::Prohibited;
-use Unicode::Stringprep::BiDi;
+use Unicode::Stringprep::Unassigned;
 
 #-------------------------------------------------------------------------------
 unit package Unicode;
@@ -11,70 +11,198 @@ unit package Unicode;
 #-------------------------------------------------------------------------------
 class Stringprep {
 
-  submethod BUILD ( ) {
-    my $self  = shift;
-    my $class = ref($self) || $self;
-    return bless _compile(@_), $class;
+  has Str $.prepper;
+
+  #-----------------------------------------------------------------------------
+  submethod BUILD ( *%attr ) {
+    $!prepper = self!compile(|%attr);
   }
 
-## Here be eval dragons
+  #-----------------------------------------------------------------------------
+  method !compile (
+    Str :$unicode-version where $_ eq '3.2' = '3.2',
+    Array :$mapping-tables,
+    Str :$unicode-normalization is copy where $_ ~~ any(''|'KC') = '',
+    Array :$prohibited-tables,
+    Bool :$bidi-check = False,
+    Bool :$unassigned-check = False
 
-sub _compile {
-  my $unicode_version = shift;
-  my $mapping_tables = shift;
-  my $unicode_normalization = uc shift;
-  my $prohibited_tables = shift;
-  my $bidi_check = shift;
-  my $unassigned_check = shift;
+    --> Str
+  ) {
 
-  croak 'Unsupported Unicode version '.$unicode_version.'.' 
-    if $unicode_version != 3.2;
+    $unicode-normalization .= uc;
 
-  my $mapping_sub = _compile_mapping($mapping_tables);
-  my $normalization_sub = _compile_normalization($unicode_normalization);
-  my $prohibited_sub = _compile_prohibited($prohibited_tables);
-  my $bidi_sub = $bidi_check ? '_check_bidi($string)' : undef;
-  my $unassigned_sub = $unassigned_check ? '_check_unassigned($string)' : undef;
-  my $pr29_sub = (defined $normalization_sub) ? '_check_pr29($string)' : undef;
+    my $mapping-sub = self!compile-mapping($mapping-tables);
+say "Map sub: ", $mapping-sub.perl;
 
-  my $code = "sub { no warnings 'utf8';".
-   'my $string = shift;';
+#`{{
+    my $normalization-sub = self!compile-normalization($unicode-normalization);
+    my $prohibited_sub = self!compile-prohibited($prohibited_tables);
+    my $bidi_sub = $bidi-check ? '_check_bidi($string)' : undef;
+    my $unassigned_sub = $unassigned-check ? '_check_unassigned($string)' : undef;
+    my $pr29_sub = (defined $normalization-sub) ? '_check_pr29($string)' : undef;
 
-  $code .= '$string .= pack("U0");' if $] < 5.008;
+    my $code = "sub { no warnings 'utf8';".
+     'my $string = shift;';
 
-  $code .= join('', map { $_ ? "{$_}\n" : ''} 
-    grep { defined $_ }
-      $mapping_sub,
-      $normalization_sub,
-      $prohibited_sub,
-      $bidi_sub,
-      $unassigned_sub,
-      $pr29_sub ).
-      'return $string;'.
-    '}';
+    $code .= '$string .= pack("U0");' if $] < 5.008;
 
-  return eval $code || die $@;
+    $code .= join('', map { $_ ? "{$_}\n" : ''} 
+      grep { defined $_ }
+        $mapping-sub,
+        $normalization-sub,
+        $prohibited_sub,
+        $bidi_sub,
+        $unassigned_sub,
+        $pr29_sub ).
+        'return $string;'.
+      '}';
+
+    return eval $code || die $@;
+}}
+"sub {say 'duh';}";
+
+  }
+
+  #-----------------------------------------------------------------------------
+  # generic compilation functions for matching/mapping characters
+  method !compile-mapping ( *@mapping-args --> Str ) {
+
+    sub mapping-tables ( Hash $mt is copy, @args is copy --> Hash ) {
+
+      while +@args {
+      
+        my $data = @args.shift;
+
+        if $data ~~ Hash {
+          $mt = %( |$mt, |$data);
+        }
+
+        # Recurse over the elements of array $data if Array
+        elsif $data ~~ Array {
+          mapping-tables( $mt, @$data);
+        }
+
+        elsif $data.defined {
+          $mt{$data} = @args.shift;
+        }
+      }
+    }
+
+    my Hash $map = {};
+    $map = mapping-tables( $map, @mapping-args);
+    return '' unless +$map;
+
+
+
+    sub compile-mapping-r ( Hash $mt, @args is copy --> Str ) {
+
+      my Str $code;
+
+      if +@args <= 8 {
+
+        $code =
+          [~] map {
+            [~] '$char ~~ ', $_, ' ? "', 
+                (map { $_ ~~ s:g/<-[a..zA..Z0..9]>/\\$// }, @($mt{$_})),
+                '"', ' : '
+          }, @args;
+      }
+      
+      else {
+      
+        my @a = @args.splice( 0, (@args.elems/2).Int);
+
+        $code = [~] '$char < ', @a[0], ' ? (',
+          compile-mapping-r( $mt, @a), ') : (',
+          compile-mapping-r( $mt, @a), ')'
+        ;
+      }
+    };
+
+    my @from = $map.keys.sort({ $^a <=> $^b });
+
+    return [~] @from unless +@from;
+
+    return [~]
+      '$string =~ s/(',
+      self!compile-set(@from Z=> @from),
+      ')/my $char = ord($1); ',
+      compile-mapping-r( $map, @from),
+      '/ge;'
+    ;
+  }
+
+  method !compile-set ( ) {
+
+    '';
+  }
 }
+
+
+
+
+
+  =finish
+
+  ## Here be eval dragons
+
+  sub _compile {
+    my $unicode_version = shift;
+    my $mapping-tables = shift;
+    my $unicode-normalization = uc shift;
+    my $prohibited_tables = shift;
+    my $bidi-check = shift;
+    my $unassigned-check = shift;
+
+    croak 'Unsupported Unicode version '.$unicode_version.'.' 
+      if $unicode_version != 3.2;
+
+    my $mapping-sub = _compile_mapping($mapping-tables);
+    my $normalization-sub = _compile_normalization($unicode-normalization);
+    my $prohibited_sub = _compile_prohibited($prohibited_tables);
+    my $bidi_sub = $bidi-check ? '_check_bidi($string)' : undef;
+    my $unassigned_sub = $unassigned-check ? '_check_unassigned($string)' : undef;
+    my $pr29_sub = (defined $normalization-sub) ? '_check_pr29($string)' : undef;
+
+    my $code = "sub { no warnings 'utf8';".
+     'my $string = shift;';
+
+    $code .= '$string .= pack("U0");' if $] < 5.008;
+
+    $code .= join('', map { $_ ? "{$_}\n" : ''} 
+      grep { defined $_ }
+        $mapping-sub,
+        $normalization-sub,
+        $prohibited_sub,
+        $bidi_sub,
+        $unassigned_sub,
+        $pr29_sub ).
+        'return $string;'.
+      '}';
+
+    return eval $code || die $@;
+  }
 
 ## generic compilation functions for matching/mapping characters
 ##
 
 sub _compile_mapping {
   my %map = ();
-  sub _mapping_tables {
+  sub _mapping-tables {
     my $map = shift;
     while(@_) {
       my $data = shift;
       if(ref($data) eq 'HASH') { %{$map} = (%{$map},%{$data}) }
-      elsif(ref($data) eq 'ARRAY') { _mapping_tables($map,@{$data}) }
+      elsif(ref($data) eq 'ARRAY') { _mapping-tables($map,@{$data}) }
       elsif(defined $data){ $map->{$data} = shift };
     }
   }
-  _mapping_tables(\%map,@_);
+  _mapping-tables(\%map,@_);
 
   return '' if !%map;
 
-  sub _compile_mapping_r { 
+  sub _compile_mapping-r { 
      my $map = shift;
      if($#_ <= 7) {
        return (join '', (map { '$char == '.$_.
@@ -83,9 +211,9 @@ sub _compile_mapping {
      } else {
       my @a = splice @_, 0, int($#_/2);
       return '$char < '.$_[0].' ? ('.
-        _compile_mapping_r($map,@a).
+        _compile_mapping-r($map,@a).
 	') : ('.
-        _compile_mapping_r($map,@_).
+        _compile_mapping-r($map,@_).
 	')';
      }
   };
@@ -95,7 +223,7 @@ sub _compile_mapping {
   return undef if !@from;
 
   return '$string =~ s/('._compile_set( map { $_ => $_ } @from).')/my $char = ord($1); '.
-      _compile_mapping_r(\%map, @from).'/ge;',
+      _compile_mapping-r(\%map, @from).'/ge;',
 }
 
 sub _compile_set {
@@ -138,13 +266,13 @@ sub _compile_set {
 ##
 
 sub _compile_normalization {
-  my $unicode_normalization = uc shift;
-  $unicode_normalization =~ s/^NF//;
+  my $unicode-normalization = uc shift;
+  $unicode-normalization =~ s/^NF//;
 
-  return '$string = _NFKC_3_2($string)' if $unicode_normalization eq 'KC';
-  return undef if !$unicode_normalization;
+  return '$string = _NFKC_3_2($string)' if $unicode-normalization eq 'KC';
+  return undef if !$unicode-normalization;
 
-  croak 'Unsupported Unicode normalization (NF)'.$unicode_normalization.'.';
+  croak 'Unsupported Unicode normalization (NF)'.$unicode-normalization.'.';
 }
 
 my $is_Unassigned = _compile_set(@Unicode::Stringprep::Unassigned::A1);
@@ -340,7 +468,7 @@ This module exports nothing.
 
 =over 4
 
-=item B<new($unicode_version, $mapping_tables, $unicode_normalization, $prohibited_tables, $bidi_check, $unassigned_check)>
+=item B<new($unicode_version, $mapping-tables, $unicode-normalization, $prohibited_tables, $bidi-check, $unassigned-check)>
 
 Creates a C<bless>ed function reference that implements a stringprep profile.
 
@@ -354,7 +482,7 @@ The Unicode version specified by the stringprep profile.
 
 Currently, this parameter must be C<3.2> (numeric).
 
-=item $mapping_tables
+=item $mapping-tables
 
 The mapping tables used for stringprep.  
 
@@ -369,7 +497,7 @@ S<Appendix B>.
 
 For further information on the mapping step, see S<RFC 3454>, S<section 3>.
 
-=item $unicode_normalization 
+=item $unicode-normalization 
 
 The Unicode normalization to be used.
 
@@ -400,14 +528,14 @@ S<Appendix C>.
 For further information on the prohibition checking step, see 
 S<RFC 3454>, S<section 5>.
 
-=item $bidi_check
+=item $bidi-check
 
 Whether to employ checks for confusing bidirectional text. A boolean value.
 
 For further information on the bidi checking step, see S<RFC 3454>,
 S<section 6>.
 
-=item $unassigned_check
+=item $unassigned-check
 
 Whether to check for and prohibit unassigned characters. A boolean value.
 

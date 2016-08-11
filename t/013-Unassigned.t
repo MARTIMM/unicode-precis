@@ -5,11 +5,10 @@ use Test;
 
 use Unicode::Stringprep::Unassigned;
 
-my Unicode::Stringprep::Unassigned $unassigned .= new;
-#say $unassigned.^attributes;
+my Array $A1 = $Unicode::Stringprep::Unassigned::A1;
 
-is $unassigned.A1[0], 545, "Map {$unassigned.A1[0]} to '{$unassigned.A1[1]//'-'}'";
-is $unassigned.A1[2], 564, "Map {$unassigned.A1[2]} to '{$unassigned.A1[3]}'";
+is $A1[0], 545, "Map {$A1[0]} to '{$A1[1]//'-'}'";
+is $A1[2], 564, "Map {$A1[2]} to '{$A1[3]}'";
 
 
 done-testing;

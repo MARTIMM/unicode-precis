@@ -5,11 +5,11 @@ use Test;
 
 use Unicode::Stringprep::BiDi;
 
-my Unicode::Stringprep::BiDi $bidi .= new;
-#say $bidi.^attributes;
+my Array $D1 = $Unicode::Stringprep::BiDi::D1;
+my Array $D2 = $Unicode::Stringprep::BiDi::D2;
 
-is $bidi.D1[0], 1470, "Map {$bidi.D1[0]} to '{$bidi.D1[1]//'-'}'";
-is $bidi.D2[0], 65, "Map {$bidi.D2[0]} to '{$bidi.D2[1]}'";
+is $D1[0], 1470, "Map {$D1[0]} to '{$D1[1]//'-'}'";
+is $D2[0], 65, "Map {$D2[0]} to '{$D2[1]}'";
 
 
 done-testing;
