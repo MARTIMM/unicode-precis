@@ -23,7 +23,7 @@ I've started to study rfc4013 for SASLprep. Then recognized it was a profile bas
 
 * rfc4013 - SASLprep: Stringprep Profile for User Names and
 
-* rfc7613 - Passwords. Preparation, Enforcement, and Comparison of Internationalized Strings Representing Usernames and Passwords. Obsoletes rfc4013.
+* rfc7613 - Preparation, Enforcement, and Comparison of Internationalized Strings Representing Usernames and Passwords. Obsoletes rfc4013.
 
 ### Perl 6
 
