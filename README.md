@@ -16,13 +16,14 @@ Started by taking the modules from perl5 and tried to translate them. This is di
 I've started to study rfc4013 for SASLprep. Then recognized it was a profile based on Stringprep specified in rfc3454 and discovered the perl5 modules implementing this procedure. Both are obsoleted by rfc7613 and rfc7564 resp. Now I am studying rfc6885.
 
 * rfc3454 - Preparation of Internationalized Strings ("stringprep").
-
 * rfc7564 - PRECIS Framework: Preparation, Enforcement, and Comparison of Internationalized Strings in Application Protocols. Obsoletes rfc3454.
+  * Preparation, Enforcement, and Comparison
+  * String classes
 
-* rfc6885 - Stringprep Revision and Problem Statement for the Preparation and Comparison of Internationalized Strings (PRECIS).
+
+* rfc6885 - Stringprep Revision and Problem Statement for the Preparation and Comparison of Internationalized Strings (PRECIS). This is an informative document about the process of redesigning the stringprep procedure.
 
 * rfc4013 - SASLprep: Stringprep Profile for User Names and
-
 * rfc7613 - Preparation, Enforcement, and Comparison of Internationalized Strings Representing Usernames and Passwords. Obsoletes rfc4013.
 
 ### Perl 6
