@@ -10,14 +10,7 @@
   "name": "Unicode::Stringprep",
   "perl": "6.c",
   "provides": {
-    "Unicode::Stringprep":              "lib/Unicode/Stringprep.pm6",
-    "Unicode::Stringprep::BIDI":        "lib/Unicode/Stringprep.pm6",
-    "Unicode::Stringprep::Common":      "lib/Unicode/Stringprep.pm6",
-    "Unicode::Stringprep::Mapping":     "lib/Unicode/Stringprep.pm6",
-    "Unicode::Stringprep::Prohibited":  "lib/Unicode/Stringprep.pm6",
-    "Unicode::Stringprep::Unassigned":  "lib/Unicode/Stringprep.pm6"
-
   },
   "source-url": "git://github.com/MARTIMM/unicode-stringprep.git",
-  "version": "v0.0.1"
+  "version": "v0.2.0"
 }

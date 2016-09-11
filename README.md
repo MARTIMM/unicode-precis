@@ -1,34 +1,39 @@
-# String preparation for use in protocols and procedures.
+# PRECIS Framework: Preparation, Enforcement, and Comparison of Internationalized Strings in Application Protocols
 
 ## Synopsis
 
 ```
 ```
 
-## Implementation track
-
-### Translation from perl 5 modules
-
-Started by taking the modules from perl5 and tried to translate them. This is difficult because the routines used are generating other routines which are evaluated and returned as a transformation procedure of some sort depending on the input (the profile). Then I decided to do it from scratch by looking into the rfc's and saw that the rfc's where obsoleted by others and that this perl5 module was not the proper one to use. One of the reasons not to go further was that the module was pinned to Unicode version 3.2.
-
 ### RFC's
 
-I've started to study rfc4013 for SASLprep. Then recognized it was a profile based on Stringprep specified in rfc3454 and discovered the perl5 modules implementing this procedure. Both are obsoleted by rfc7613 and rfc7564 resp. Now I am studying rfc6885.
+I've started to study rfc4013 for SASLprep. Then recognized it was a profile based on Stringprep specified in rfc3454. Both are obsoleted by rfc7613 and rfc7564 resp because they are tied to Unicode version 3.2. The newer rfc's are specified to be free of any version.
 
 * rfc3454 - Preparation of Internationalized Strings ("stringprep").
 * rfc7564 - PRECIS Framework: Preparation, Enforcement, and Comparison of Internationalized Strings in Application Protocols. Obsoletes rfc3454.
-  * Preparation, Enforcement, and Comparison
-  * String classes
-
-
-* rfc6885 - Stringprep Revision and Problem Statement for the Preparation and Comparison of Internationalized Strings (PRECIS). This is an informative document about the process of redesigning the stringprep procedure.
 
 * rfc4013 - SASLprep: Stringprep Profile for User Names and
 * rfc7613 - Preparation, Enforcement, and Comparison of Internationalized Strings Representing Usernames and Passwords. Obsoletes rfc4013.
 
+Further needed information from
+* rfc5892 - The Unicode Code Points and Internationalized Domain Names for Applications (IDNA)
+
 ### Perl 6
 
-Perl 6 uses NFG internally to specify character strings. This is not a standard but a perl 6 invention to look at strings as a list of graphemes (see synopsis 15). From this other forms can be generated using the string methods NFC, NFD, NFKC and NFKD. Furthermore the strings can be encoded to utf-8 and utf-16.
+Perl 6 uses graphemes as a base for the Str string type. These are the visible entities which show as a single symbol and are counted as such with the ```Str.chars``` method. From this, normal forms can be generated using the string methods NFC, NFD, NFKC and NFKD. Furthermore the strings can be encoded to utf-8.
+
+## Implementation track
+
+First the basis of the PRECIS framework will be build. As soon as possible a profile for usernames and passwords follows. This is my first need. When this functions well enough, other profiles can be inserted.
+
+Naming of modules;
+  Unicode::PRECIS                                           from rfc7564
+  Unicode::PRECIS::Identifier                               from rfc7564
+  Unicode::PRECIS::Identifier::UsernameCaseMapped           from rfc7613
+  Unicode::PRECIS::Identifier::UsernameCasePreserved        from rfc7613
+
+  Unicode::PRECIS::Freeform                                 from rfc7564
+  Unicode::PRECIS::Freeform::OpaqueString                   from rfc7613
 
 ## Versions of perl, moarvm and MongoDB
 
@@ -42,8 +47,11 @@ See [semantic versioning](http://semver.org/). Please note point 4. on
 that page: *Major version zero (0.y.z) is for initial development. Anything may
 change at any time. The public API should not be considered stable.*
 
+* 0.2.0
+  * New start with newer rfc's
 * 0.1.1
   * Abandon translation. There are several follow ups of the rfc's to study first.
+  * Renamed the repository into unicode-precis
 * 0.1
   * Start project. The sources are taken from the perl 5 modules and translated into perl6
 
@@ -54,7 +62,6 @@ Released under [Artistic License 2.0](http://www.perlfoundation.org/artistic_lic
 ## Authors
 
 ```
-Claus Färber: Original creator of the modules for perl 5. See [CPAN](http://search.cpan.org/~cfaerber/Unicode-Stringprep-1.105/lib/Unicode/Stringprep.pm)
 Marcel Timmerman translation of the modules for perl 6
 ```
 ## Contact
