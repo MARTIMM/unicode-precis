@@ -1,5 +1,8 @@
 use v6.c;
 
+# String preparation according to rfc7564 which obsoletes rfc3454. The obsoleted
+# version was tied to unicode version 3,2 while the new one is not tied to any.
+
 use Unicode::Stringprep::BiDi;
 use Unicode::Stringprep::Mapping;
 use Unicode::Stringprep::Prohibited;
@@ -15,9 +18,14 @@ class Stringprep {
 
   #-----------------------------------------------------------------------------
   submethod BUILD ( *%attr ) {
-    $!prepper = self!compile(|%attr);
+#    $!prepper = self!compile(|%attr);
   }
+}
 
+
+
+
+=finish
   #-----------------------------------------------------------------------------
   method !compile (
     Str :$unicode-version where $_ eq '3.2' = '3.2',
