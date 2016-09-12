@@ -17,14 +17,14 @@ class PRECIS::Identifier is Unicode::PRECIS {
 
   #-----------------------------------------------------------------------------
   submethod BUILD ( ) {
-  
+
   }
 
   #-----------------------------------------------------------------------------
   # Preparation entails only ensuring that the characters in an individual string
   # are allowed by the underlying PRECIS string class.
   method prepare ( Str $s --> Bool ) {
-  
+
   }
 
   #-----------------------------------------------------------------------------
@@ -32,7 +32,7 @@ class PRECIS::Identifier is Unicode::PRECIS {
   # string class or profile thereof to an individual string, for the purpose of
   # determining if the string can be used in a given protocol slot.
   method enforce ( Str $s --> Bool ) {
-  
+
   }
 
   #-----------------------------------------------------------------------------
@@ -40,6 +40,34 @@ class PRECIS::Identifier is Unicode::PRECIS {
   # string class or profile thereof to two separate strings, for the purpose of
   # determining if the two strings are equivalent.
   method compare ( Str $s1, Str $s2 --> Bool ) {
-  
+
+  }
+
+  #-----------------------------------------------------------------------------
+  method calculate-value ( Int $codepoint --> Int ) {
+
+    if $codepoint (elem) $exceptions { self.exceptions($codepoint); }
+
+    elsif $codepoint (elem) $backwardcompatible {
+      self.backwardcompatible($codepoint);
+    }
+
+    elsif $codepoint (elem) $unassigned { $properties<UNASSIGNED>; }
+    elsif $codepoint (elem) $ascii7 { $properties<PVALID>; }
+    elsif $codepoint (elem) $joincontrol { $properties<CONTEXTJ>; }
+    elsif $codepoint (elem) $oldhanguljamo { $properties<DISALLOWED>; }
+
+    elsif $codepoint (elem) $precisignorableproperties {
+      $properties<PDisallowed>;
+    }
+
+    elsif $codepoint (elem) $controls { $properties<DISALLOWED>; }
+    elsif $codepoint (elem) $hascompat { $properties<IDISALLOWED>; }
+    elsif $codepoint (elem) $letterdigits { $properties<PVALID>; }
+    elsif $codepoint (elem) $otherletterdigits { $properties<ID_DIS>; }
+    elsif $codepoint (elem) $spaces { $properties<ID_DIS>; }
+    elsif $codepoint (elem) $symbols { $properties<ID_DIS>; }
+    elsif $codepoint (elem) $punctuation { $properties<ID_DIS>; }
+    else { DISALLOWED; }
   }
 }

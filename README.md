@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/MARTIMM/unicode-precis.svg?branch=master)](https://travis-ci.org/MARTIMM/unicode-precis)
+
 # PRECIS Framework: Preparation, Enforcement, and Comparison of Internationalized Strings in Application Protocols
 
 ## Synopsis

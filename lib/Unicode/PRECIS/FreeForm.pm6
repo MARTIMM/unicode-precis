@@ -19,14 +19,14 @@ class PRECIS::FreeForm is Unicode::PRECIS {
 
   #-----------------------------------------------------------------------------
   submethod BUILD ( ) {
-  
+
   }
 
   #-----------------------------------------------------------------------------
   # Preparation entails only ensuring that the characters in an individual string
   # are allowed by the underlying PRECIS string class.
   method prepare ( Str $s --> Bool ) {
-  
+
   }
 
   #-----------------------------------------------------------------------------
@@ -34,7 +34,7 @@ class PRECIS::FreeForm is Unicode::PRECIS {
   # string class or profile thereof to an individual string, for the purpose of
   # determining if the string can be used in a given protocol slot.
   method enforce ( Str $s --> Bool ) {
-  
+
   }
 
   #-----------------------------------------------------------------------------
@@ -42,6 +42,34 @@ class PRECIS::FreeForm is Unicode::PRECIS {
   # string class or profile thereof to two separate strings, for the purpose of
   # determining if the two strings are equivalent.
   method compare ( Str $s1, Str $s2 --> Bool ) {
-  
+
+  }
+
+  #-----------------------------------------------------------------------------
+  method calculate-value ( Int $codepoint ) {
+
+    if $codepoint (elem) $exceptions { self.exceptions($codepoint); }
+
+    elsif $codepoint (elem) $backwardcompatible {
+      self.backwardcompatible($codepoint);
+    }
+
+    elsif $codepoint (elem) $unassigned { $properties<UNASSIGNED>; }
+    elsif $codepoint (elem) $ascii7 { $properties<PVALID>; }
+    elsif $codepoint (elem) $joincontrol { $properties<CONTEXTJ>; }
+    elsif $codepoint (elem) $oldhangulJamo { $properties<DISALLOWED>; }
+
+    elsif $codepoint (elem) $precisignorableproperties {
+      $properties<DISALLOWED>;
+    }
+
+    elsif $codepoint (elem) $controls { $properties<DISALLOWED>; }
+    elsif $codepoint (elem) $hascompat { $properties<FREE_PVAL>; }
+    elsif $codepoint (elem) $letterdigits {$properties< PVALID>; }
+    elsif $codepoint (elem) $otherletterdigits { $properties<FREE_PVAL>; }
+    elsif $codepoint (elem) $spaces { $properties<FREE_PVAL>; }
+    elsif $codepoint (elem) $symbols { $properties<FREE_PVAL>; }
+    elsif $codepoint (elem) $punctuation { $properties<FREE_PVAL>; }
+    else { DISALLOWED; }
   }
 }
