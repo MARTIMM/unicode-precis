@@ -35,19 +35,54 @@ my Map $ucd-names .= new(
 );
 
 #-------------------------------------------------------------------------------
-my Hash $h = ucd-db(
-  :unicode-data-file<UnicodeData.txt>,
-  :catagories([<Cc>])
-);
+#say "A: ", @*ARGS.perl;
+multi sub MAIN ( 'UCD', Str :$class-name!, Str :$ucd-cat! ) {
 
-say $h.keys;
+say $ucd-cat;
+  my Hash $h = ucd-db(
+    :unicode-data-file<UnicodeData.txt>,
+    :ucd-cat($ucd-cat.split(/\h* ',' \h*/))
+  );
 
-for $h{0x0000}.kv -> $k, $v { say "$k = $v"; };
-
-generate-module( :class-name<PRECIS::Tables::xCc>, :ucd-db($h));
+  generate-module( :class-name('PRECIS::Tables::' ~ $class-name), :ucd-db($h));
+}
 
 #-------------------------------------------------------------------------------
-sub ucd-db ( Str :$unicode-data-file, Array :$catagories --> Hash ) {
+sub USAGE ( ) {
+
+  say Q:to/EO-USE/;
+
+  Generate modules based on character tables from several sources.
+
+  Usage:
+    generate-module.pl6 --class-name=<Str> --ucd-cat=<List> UCD
+
+
+  Options:
+    --class-name        Name of the class generated. This will be a
+                        generated as follows;
+                        
+                          unit package Unicode;
+                          module PRECIS::Tables::$class-name {
+                            ...
+                          }
+
+                        The module is generated in the current directory as
+                        $class-name.pm6. After generating the file, it can be
+                        moved to other places.
+
+    When UCD (Unicode Database)
+    --ucd-cat           This is a list of comma separated strings. These
+                        strings are searched in the UnicodeData.txt from
+                        http://unicode.org/Public/9.0.0/ucd/UnicodeData.txt.
+                        This file must be found in the current directory
+
+
+  EO-USE
+}
+
+#-------------------------------------------------------------------------------
+sub ucd-db ( Str :$unicode-data-file, List :$ucd-cat --> Hash ) {
 
   my Hash $unicode-data = {};
   for $unicode-data-file.IO.lines -> $line {
@@ -55,7 +90,7 @@ sub ucd-db ( Str :$unicode-data-file, Array :$catagories --> Hash ) {
     my Array $unicode-data-entry = [$line.split(';')];
     my Str $catagory = $unicode-data-entry[2];
 
-    if $unicode-data-entry[2] ~~ any(@$catagories) {
+    if $unicode-data-entry[2] ~~ any(@$ucd-cat) {
       for ^ $ucd-names.elems -> $ui {
 #say "$ui: $unicode-data-entry[$ui]" if ? $unicode-data-entry[$ui];
         $unicode-data{:16($unicode-data-entry[0])}{$ucd-names{$ui}} =
@@ -100,7 +135,8 @@ sub generate-module (
   $class-text ~= "}\n";
 
 say "\n$class-text";
-  my Str $fn = $class-name";
+  my Str $fn = $class-name;
+  $fn ~~ s:g/ [ <-[:]>+ '::' ] //;
   
-  spurt( "$class-name.pm6", $class-text);
+  spurt( "$fn.pm6", $class-text);
 }
