@@ -1,12 +1,17 @@
 use v6.c;
 use Test;
 use Unicode::PRECIS;
-use Unicode::PRECIS::Tables::Cc;
+use Unicode::PRECIS::Tables::GeneralCatagory;
 
 #-------------------------------------------------------------------------------
 subtest {
-say $Unicode::PRECIS::Tables::Cc::set;
-  ok 0x0000 (elem) $Unicode::PRECIS::Tables::Cc::set, '0x0000 in Cc table';
+  ok 0x00C0 (elem) $Unicode::PRECIS::Tables::GeneralCatagory::set,
+     '0x00C0 in GeneralCatagory set';
+
+  for "abc\x[0398]\x[30c7]".NFC -> $codepoint {
+    ok $codepoint (elem) $Unicode::PRECIS::Tables::GeneralCatagory::set,
+      Uni.new($codepoint).Str() ~ " ($codepoint.fmt('0x%04x')) in general set";
+  }
 }, 'Test tables';
 
 #-------------------------------------------------------------------------------
