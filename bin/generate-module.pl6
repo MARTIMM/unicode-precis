@@ -61,7 +61,7 @@ sub USAGE ( ) {
   Options:
     --class-name        Name of the class generated. This will be a
                         generated as follows;
-                        
+
                           unit package Unicode;
                           module PRECIS::Tables::$class-name {
                             ...
@@ -85,16 +85,40 @@ sub USAGE ( ) {
 sub ucd-db ( Str :$unicode-data-file, List :$ucd-cat --> Hash ) {
 
   my Hash $unicode-data = {};
+  my Bool $first-of-range-found = False;
+  my Str $codepoint-start;
   for $unicode-data-file.IO.lines -> $line {
 
     my Array $unicode-data-entry = [$line.split(';')];
     my Str $catagory = $unicode-data-entry[2];
 
     if $unicode-data-entry[2] ~~ any(@$ucd-cat) {
-      for ^ $ucd-names.elems -> $ui {
+      if !$first-of-range-found and $unicode-data-entry[1] ~~ m/ 'First>' / {
+        $first-of-range-found = True;
+        $codepoint-start = $unicode-data-entry[0];
+      }
+
+      elsif $first-of-range-found and $unicode-data-entry[1] ~~ m/ 'Last>' / {
+        $first-of-range-found = False;
+
+        my Str $entry = "0x$codepoint-start..0x$unicode-data-entry[0]";
+        for ^ $ucd-names.elems -> $ui {
+          $unicode-data{$entry}{$ucd-names{$ui}} =
+            $unicode-data-entry[$ui] if ? $unicode-data-entry[$ui];
+        }
+
+        $unicode-data{$entry}<codepoint> = $entry;
+      }
+
+      else {
+        my Str $entry = "0x$unicode-data-entry[0]";
+        for ^ $ucd-names.elems -> $ui {
 #say "$ui: $unicode-data-entry[$ui]" if ? $unicode-data-entry[$ui];
-        $unicode-data{:16($unicode-data-entry[0])}{$ucd-names{$ui}} =
-          $unicode-data-entry[$ui] if ? $unicode-data-entry[$ui];
+          $unicode-data{$entry}{$ucd-names{$ui}} =
+            $unicode-data-entry[$ui] if ? $unicode-data-entry[$ui];
+        }
+
+        $unicode-data{$entry}<codepoint> = $entry;
       }
     }
   }
@@ -112,31 +136,36 @@ sub generate-module (
   my $class-text = Qs:q:to/HEADER/;
     use v6.c;
     unit package Unicode;
-    
+
     module $class-name {
 
     HEADER
 
   if $gen-table {
-    $class-text ~= '    our $table = %(' ~ "\n";
+    $class-text ~= '    our $table = %(' ~ "\n    ";
     for $ucd-db.keys.sort -> $codepoint {
 
     }
 
     $class-text ~= "  );\n";
   }
-  
+
   elsif $gen-set {
-    $class-text ~= [~] '  our $set = Set.new(', "\n",
-                       '    ', $ucd-db.keys.sort.join(', '), "\n",
-                       "  );\n";
+    $class-text ~= '  our $set = Set.new: (' ~ "\n    ";
+    my $cnt = 1;
+    for $ucd-db.keys.sort -> $cp {
+      $class-text ~= "$cp, ";
+      $class-text ~= "\n    " unless $cnt++ % 8;
+    }
+
+    $class-text ~= "\n  ).flat;\n";
   }
 
-  $class-text ~= "}\n";
+  $class-text ~= "};\n";
 
 say "\n$class-text";
   my Str $fn = $class-name;
   $fn ~~ s:g/ [ <-[:]>+ '::' ] //;
-  
+
   spurt( "$fn.pm6", $class-text);
 }
