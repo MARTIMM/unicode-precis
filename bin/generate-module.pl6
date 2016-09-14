@@ -39,11 +39,7 @@ my Map $ucd-names .= new(
 multi sub MAIN ( 'UCD', Str :$class-name!, Str :$ucd-cat! ) {
 
 say $ucd-cat;
-  my Hash $h = ucd-db(
-    :unicode-data-file<UnicodeData.txt>,
-    :ucd-cat($ucd-cat.split(/\h* ',' \h*/))
-  );
-
+  my Hash $h = ucd-db(:ucd-cat($ucd-cat.split(/\h* ',' \h*/)));
   generate-module( :class-name('PRECIS::Tables::' ~ $class-name), :ucd-db($h));
 }
 
@@ -82,8 +78,9 @@ sub USAGE ( ) {
 }
 
 #-------------------------------------------------------------------------------
-sub ucd-db ( Str :$unicode-data-file, List :$ucd-cat --> Hash ) {
+sub ucd-db ( List :$ucd-cat --> Hash ) {
 
+  my Str $unicode-data-file = '<UnicodeData.txt';
   my Hash $unicode-data = {};
   my Bool $first-of-range-found = False;
   my Str $codepoint-start;
