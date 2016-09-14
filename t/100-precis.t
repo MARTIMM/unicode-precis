@@ -2,16 +2,20 @@ use v6.c;
 use Test;
 use Unicode::PRECIS;
 use Unicode::PRECIS::Tables::GeneralCatagory;
+use Unicode::PRECIS::Tables::JoinControl;
 
 #-------------------------------------------------------------------------------
 subtest {
   ok 0x00C0 (elem) $Unicode::PRECIS::Tables::GeneralCatagory::set,
      '0x00C0 in GeneralCatagory set';
 
-  for "abc\x[0398]\x[30c7]".NFC -> $codepoint {
+  for "abc\x[0398]\x[30c7]\x[17010]\x[17820]".NFC -> $codepoint {
     ok $codepoint (elem) $Unicode::PRECIS::Tables::GeneralCatagory::set,
       Uni.new($codepoint).Str() ~ " ($codepoint.fmt('0x%04x')) in general set";
   }
+
+  ok 0x200C (elem) $Unicode::PRECIS::Tables::JoinControl::set,
+     '0x200C in JoinControl set';
 }, 'Test tables';
 
 #-------------------------------------------------------------------------------

@@ -3,6 +3,92 @@
 use v6.c;
 
 #-------------------------------------------------------------------------------
+# http://www.unicode.org/reports/tr44/
+#   4.2.3 Code Point Ranges in UnicodeData.txt
+#   4.2.4 Comments
+#
+
+#-------------------------------------------------------------------------------
+#say "A: ", @*ARGS.perl;
+
+# Search through UnicodeData.txt
+multi sub MAIN ( 'UCD', Str $ucd-dir = '9.0', Str :$class-name!, Str :$ucd-cat! ) {
+
+  the-work( :$ucd-dir, :$class-name, :cat($ucd-cat), :worker(&ucd-db));
+}
+
+
+# Search through PropList.txt
+multi sub MAIN ( 'PRL', Str $ucd-dir = '9.0', Str :$class-name!, Str :$prl-cat! ) {
+
+  the-work( :$ucd-dir, :$class-name, :cat($prl-cat), :worker(&prl-db));
+}
+
+#-------------------------------------------------------------------------------
+sub the-work ( Str :$ucd-dir, Str :$class-name, Str :$cat, Callable :$worker ) {
+
+  die "Directory $ucd-dir not found" unless $ucd-dir.IO ~~ :d;
+
+  # Go to unicode data dir
+  my $current-dir = $*CWD.Str;
+  chdir $ucd-dir;
+
+  # Go to unicode data dir
+  my Hash $data = &$worker(:cat($cat.split(/\h* ',' \h*/)));
+
+  # Return to original dir
+  chdir $current-dir;
+
+  # Generate module
+  generate-module( :class-name('PRECIS::Tables::' ~ $class-name), :$data);
+}
+
+#-------------------------------------------------------------------------------
+sub USAGE ( ) {
+
+  say Q:to/EO-USE/;
+
+  Generate modules based on character tables from several sources.
+
+  Usage:
+
+    Search through the UnicodeData.txt file
+    > generate-module.pl6 [<ucd-dir> ='9.0'] --class-name=<Str> --ucd-cat=<List> UCD
+
+    Search through the PropList.txt file
+    > generate-module.pl6 [<ucd-dir> ='9.0'] --class-name=<Str> --prl-cat=<List> PRL
+
+  Arguments
+    ucd-dir             Directory where unicode data is to be found. Default
+                        is set to './9.0'.
+
+  Options:
+    --class-name        Name of the class generated. This will be a
+                        generated as follows;
+
+                          unit package Unicode;
+                          module PRECIS::Tables::$class-name {
+                            ...
+                          }
+
+                        The module is generated in the current directory as
+                        $class-name.pm6. After generating the file, it can be
+                        moved to other places.
+
+    When UCD (Search through UnicodeData.txt)
+    --ucd-cat           This is a list of comma separated strings. These
+                        strings are searched in the UnicodeData.txt from
+                        http://unicode.org/Public/9.0.0/ucd/UnicodeData.txt.
+                        This file must be found in the current directory
+
+    When PRL (Search through PropList.txt)
+    --prl-cat           This is a list of comma separated strings just as above
+                        but has other catagory names.
+
+  EO-USE
+}
+
+#-------------------------------------------------------------------------------
 # ftp://unicode.org/Public/3.2-Update/UnicodeData-3.2.0.html
 # Field Name                            N/I Explanation
 # 0     Code point                      N   Code point.
@@ -23,78 +109,42 @@ use v6.c;
 #                                           Note: This field is omitted if the lowercase is the same as field 0. For full case mappings, see UAX #21 Case Mappings and SpecialCasing.txt.
 # 14 	Titlecase Mapping 	        N   Similar to Uppercase mapping.
 #                                           Note: This field is omitted if the titlecase is the same as field 12. For full case mappings, see UAX #21 Case Mappings and SpecialCasing.txt.
-#
-my Map $ucd-names .= new(
-  < codepoint character-name general-catagory
-    canonical-combining-classes bidirectional-category
-    character-decomposition-mapping decimal-digit-value
-    digit-value numeric-value mirrored unicode10name
-    iso10646-comment-field uppercase-mapping lowercase-mapping
-    titlecase-mapping
-  >.kv
-);
+sub ucd-db ( List :cat($ucd-cat) --> Hash ) {
 
-#-------------------------------------------------------------------------------
-#say "A: ", @*ARGS.perl;
-multi sub MAIN ( 'UCD', Str :$class-name!, Str :$ucd-cat! ) {
+  my Map $ucd-names .= new(
+    < codepoint character-name general-catagory
+      canonical-combining-classes bidirectional-category
+      character-decomposition-mapping decimal-digit-value
+      digit-value numeric-value mirrored unicode10name
+      iso10646-comment-field uppercase-mapping lowercase-mapping
+      titlecase-mapping
+    >.kv
+  );
 
-say $ucd-cat;
-  my Hash $h = ucd-db(:ucd-cat($ucd-cat.split(/\h* ',' \h*/)));
-  generate-module( :class-name('PRECIS::Tables::' ~ $class-name), :ucd-db($h));
-}
-
-#-------------------------------------------------------------------------------
-sub USAGE ( ) {
-
-  say Q:to/EO-USE/;
-
-  Generate modules based on character tables from several sources.
-
-  Usage:
-    generate-module.pl6 --class-name=<Str> --ucd-cat=<List> UCD
-
-
-  Options:
-    --class-name        Name of the class generated. This will be a
-                        generated as follows;
-
-                          unit package Unicode;
-                          module PRECIS::Tables::$class-name {
-                            ...
-                          }
-
-                        The module is generated in the current directory as
-                        $class-name.pm6. After generating the file, it can be
-                        moved to other places.
-
-    When UCD (Unicode Database)
-    --ucd-cat           This is a list of comma separated strings. These
-                        strings are searched in the UnicodeData.txt from
-                        http://unicode.org/Public/9.0.0/ucd/UnicodeData.txt.
-                        This file must be found in the current directory
-
-
-  EO-USE
-}
-
-#-------------------------------------------------------------------------------
-sub ucd-db ( List :$ucd-cat --> Hash ) {
-
-  my Str $unicode-data-file = '<UnicodeData.txt';
   my Hash $unicode-data = {};
   my Bool $first-of-range-found = False;
   my Str $codepoint-start;
-  for $unicode-data-file.IO.lines -> $line {
 
+  for 'UnicodeData.txt'.IO.lines -> $line is copy {
+
+    # Comments and empty lines are removed
+    $line ~~ s/ \s* '#' .* $//;
+    next if $line ~~ m/^ \h* $/;
+
+    # Split into the several fields
     my Array $unicode-data-entry = [$line.split(';')];
     my Str $catagory = $unicode-data-entry[2];
 
+    # Check for the requested catagories
     if $unicode-data-entry[2] ~~ any(@$ucd-cat) {
+
+      # Check for range start and save codepoint of start
       if !$first-of-range-found and $unicode-data-entry[1] ~~ m/ 'First>' / {
         $first-of-range-found = True;
         $codepoint-start = $unicode-data-entry[0];
       }
 
+      # Check end of range and store
       elsif $first-of-range-found and $unicode-data-entry[1] ~~ m/ 'Last>' / {
         $first-of-range-found = False;
 
@@ -107,10 +157,10 @@ sub ucd-db ( List :$ucd-cat --> Hash ) {
         $unicode-data{$entry}<codepoint> = $entry;
       }
 
+      # All else store directly
       else {
         my Str $entry = "0x$unicode-data-entry[0]";
         for ^ $ucd-names.elems -> $ui {
-#say "$ui: $unicode-data-entry[$ui]" if ? $unicode-data-entry[$ui];
           $unicode-data{$entry}{$ucd-names{$ui}} =
             $unicode-data-entry[$ui] if ? $unicode-data-entry[$ui];
         }
@@ -124,9 +174,40 @@ sub ucd-db ( List :$ucd-cat --> Hash ) {
 };
 
 #-------------------------------------------------------------------------------
+sub prl-db ( List :cat($prl-cat) --> Hash ) {
+
+  my Map $prop-names .= new( < codepoint property >.kv );
+  my Hash $prop-data = {};
+
+  for 'PropList.txt'.IO.lines -> $line is copy {
+
+    # Comments and empty lines are removed
+    $line ~~ s/ \s* '#' .* $//;
+    next if $line ~~ m/^ \h* $/;
+
+    # Split into the several fields
+    my Array $prop-entry = [$line.split(/ \s* ';' \s* /)];
+    my Str $catagory = $prop-entry[1];
+
+    if $catagory ~~ any (@$prl-cat) {
+say "C: $catagory";
+      for ^ $prop-names.elems -> $ui {
+        my $entry = "0x$prop-entry[0]";
+        $entry ~~ s/ '..' /..0x/;
+
+        $prop-data{$entry}{$prop-names{$ui}} =
+          $prop-entry[$ui] if ? $prop-entry[$ui];
+      }
+    }
+  }
+  
+  $prop-data;
+}
+
+#-------------------------------------------------------------------------------
 sub generate-module (
-  Str :$class-name, Hash :$ucd-db,
-  Bool :$gen-table = False, Bool :$gen-set = True
+  Str :$class-name, Hash :$data,
+#  Bool :$gen-table = False, Bool :$gen-set = True
   --> Nil
   ) {
 
@@ -138,25 +219,25 @@ sub generate-module (
 
     HEADER
 
-  if $gen-table {
-    $class-text ~= '    our $table = %(' ~ "\n    ";
-    for $ucd-db.keys.sort -> $codepoint {
-
-    }
-
-    $class-text ~= "  );\n";
-  }
-
-  elsif $gen-set {
+#  if $gen-table {
+#    $class-text ~= '    our $table = %(' ~ "\n    ";
+#    for $data.keys.sort -> $codepoint {
+#
+#    }
+#
+#    $class-text ~= "  );\n";
+#  }
+#
+#  elsif $gen-set {
     $class-text ~= '  our $set = Set.new: (' ~ "\n    ";
     my $cnt = 1;
-    for $ucd-db.keys.sort -> $cp {
+    for $data.keys.sort -> $cp {
       $class-text ~= "$cp, ";
       $class-text ~= "\n    " unless $cnt++ % 8;
     }
 
     $class-text ~= "\n  ).flat;\n";
-  }
+#  }
 
   $class-text ~= "};\n";
 
