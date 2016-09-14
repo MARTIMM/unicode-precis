@@ -5,6 +5,7 @@ use Unicode::PRECIS;
 use Unicode::PRECIS::Tables::GeneralCatagory;
 use Unicode::PRECIS::Tables::JoinControl;
 use Unicode::PRECIS::Tables::OldHangulJamo;
+use Unicode::PRECIS::Tables::NonCharCodepoint;
 
 #-------------------------------------------------------------------------------
 subtest {
@@ -24,6 +25,12 @@ subtest {
 
   ok 0x11A0 (elem) $Unicode::PRECIS::Tables::OldHangulJamo::set,
      '0x11A0 in OldHangulJamo set';
+
+  ok 0x11A0 (elem) $Unicode::PRECIS::Tables::OldHangulJamo::set,
+     '0x11A0 in OldHangulJamo set';
+
+  ok 0x5FFFE (elem) $Unicode::PRECIS::Tables::NonCharCodepoint::set,
+     '0x5FFFE in NonCharCodepoint set';
 }, 'Test tables';
 
 #-------------------------------------------------------------------------------
