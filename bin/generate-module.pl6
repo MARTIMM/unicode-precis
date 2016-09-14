@@ -12,20 +12,25 @@ use v6.c;
 #say "A: ", @*ARGS.perl;
 
 # Search through UnicodeData.txt
-multi sub MAIN ( 'UCD', Str $ucd-dir = '9.0', Str :$class-name!, Str :$ucd-cat! ) {
+multi sub MAIN ( 'UCD', Str $ucd-dir = '9.0', Str :$mod-name!, Str :$ucd-cat! ) {
 
-  the-work( :$ucd-dir, :$class-name, :cat($ucd-cat), :worker(&ucd-db));
+  the-work( :$ucd-dir, :$mod-name, :cat($ucd-cat), :worker(&ucd-db));
 }
 
+# Search through PropList.txt
+multi sub MAIN ( 'PRL', Str $ucd-dir = '9.0', Str :$mod-name!, Str :$prl-cat! ) {
+
+  the-work( :$ucd-dir, :$mod-name, :cat($prl-cat), :worker(&prl-db));
+}
 
 # Search through PropList.txt
-multi sub MAIN ( 'PRL', Str $ucd-dir = '9.0', Str :$class-name!, Str :$prl-cat! ) {
+multi sub MAIN ( 'HST', Str $ucd-dir = '9.0', Str :$mod-name!, Str :$hst-cat! ) {
 
-  the-work( :$ucd-dir, :$class-name, :cat($prl-cat), :worker(&prl-db));
+  the-work( :$ucd-dir, :$mod-name, :cat($hst-cat), :worker(&hst-db));
 }
 
 #-------------------------------------------------------------------------------
-sub the-work ( Str :$ucd-dir, Str :$class-name, Str :$cat, Callable :$worker ) {
+sub the-work ( Str :$ucd-dir, Str :$mod-name, Str :$cat, Callable :$worker ) {
 
   die "Directory $ucd-dir not found" unless $ucd-dir.IO ~~ :d;
 
@@ -40,7 +45,7 @@ sub the-work ( Str :$ucd-dir, Str :$class-name, Str :$cat, Callable :$worker ) {
   chdir $current-dir;
 
   # Generate module
-  generate-module( :class-name('PRECIS::Tables::' ~ $class-name), :$data);
+  generate-module( :mod-name('PRECIS::Tables::' ~ $mod-name), :$data);
 }
 
 #-------------------------------------------------------------------------------
@@ -53,26 +58,29 @@ sub USAGE ( ) {
   Usage:
 
     Search through the UnicodeData.txt file
-    > generate-module.pl6 [<ucd-dir> ='9.0'] --class-name=<Str> --ucd-cat=<List> UCD
+    > generate-module.pl6 [<ucd-dir> ='9.0'] --mod-name=<Str> --ucd-cat=<List> UCD
 
     Search through the PropList.txt file
-    > generate-module.pl6 [<ucd-dir> ='9.0'] --class-name=<Str> --prl-cat=<List> PRL
+    > generate-module.pl6 [<ucd-dir> ='9.0'] --mod-name=<Str> --prl-cat=<List> PRL
+
+    Search through the HangulSyllableType.txt file
+    > generate-module.pl6 [<ucd-dir> ='9.0'] --mod-name=<Str> --hst-cat=<List> HST
 
   Arguments
     ucd-dir             Directory where unicode data is to be found. Default
                         is set to './9.0'.
 
   Options:
-    --class-name        Name of the class generated. This will be a
+    --mod-name        Name of the class generated. This will be a
                         generated as follows;
 
                           unit package Unicode;
-                          module PRECIS::Tables::$class-name {
+                          module PRECIS::Tables::$mod-name {
                             ...
                           }
 
                         The module is generated in the current directory as
-                        $class-name.pm6. After generating the file, it can be
+                        $mod-name.pm6. After generating the file, it can be
                         moved to other places.
 
     When UCD (Search through UnicodeData.txt)
@@ -82,6 +90,10 @@ sub USAGE ( ) {
                         This file must be found in the current directory
 
     When PRL (Search through PropList.txt)
+    --prl-cat           This is a list of comma separated strings just as above
+                        but has other catagory names.
+
+    When HST (Search through HangulSyllableType.txt)
     --prl-cat           This is a list of comma separated strings just as above
                         but has other catagory names.
 
@@ -190,7 +202,6 @@ sub prl-db ( List :cat($prl-cat) --> Hash ) {
     my Str $catagory = $prop-entry[1];
 
     if $catagory ~~ any (@$prl-cat) {
-say "C: $catagory";
       for ^ $prop-names.elems -> $ui {
         my $entry = "0x$prop-entry[0]";
         $entry ~~ s/ '..' /..0x/;
@@ -205,8 +216,38 @@ say "C: $catagory";
 }
 
 #-------------------------------------------------------------------------------
+sub hst-db ( List :cat($hst-cat) --> Hash ) {
+
+  my Map $hst-names .= new( < codepoint property >.kv );
+  my Hash $hst-data = {};
+
+  for 'HangulSyllableType.txt'.IO.lines -> $line is copy {
+
+    # Comments and empty lines are removed
+    $line ~~ s/ \s* '#' .* $//;
+    next if $line ~~ m/^ \h* $/;
+
+    # Split into the several fields
+    my Array $hst-entry = [$line.split(/ \s* ';' \s* /)];
+    my Str $catagory = $hst-entry[1];
+
+    if $catagory ~~ any (@$hst-cat) {
+      for ^ $hst-names.elems -> $ui {
+        my $entry = "0x$hst-entry[0]";
+        $entry ~~ s/ '..' /..0x/;
+
+        $hst-data{$entry}{$hst-names{$ui}} =
+          $hst-entry[$ui] if ? $hst-entry[$ui];
+      }
+    }
+  }
+
+  $hst-data;
+}
+
+#-------------------------------------------------------------------------------
 sub generate-module (
-  Str :$class-name, Hash :$data,
+  Str :$mod-name, Hash :$data,
 #  Bool :$gen-table = False, Bool :$gen-set = True
   --> Nil
   ) {
@@ -215,7 +256,7 @@ sub generate-module (
     use v6.c;
     unit package Unicode;
 
-    module $class-name {
+    module $mod-name {
 
     HEADER
 
@@ -242,7 +283,7 @@ sub generate-module (
   $class-text ~= "};\n";
 
 say "\n$class-text";
-  my Str $fn = $class-name;
+  my Str $fn = $mod-name;
   $fn ~~ s:g/ [ <-[:]>+ '::' ] //;
 
   spurt( "$fn.pm6", $class-text);

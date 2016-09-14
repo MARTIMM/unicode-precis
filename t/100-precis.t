@@ -1,8 +1,10 @@
 use v6.c;
 use Test;
+
 use Unicode::PRECIS;
 use Unicode::PRECIS::Tables::GeneralCatagory;
 use Unicode::PRECIS::Tables::JoinControl;
+use Unicode::PRECIS::Tables::OldHangulJamo;
 
 #-------------------------------------------------------------------------------
 subtest {
@@ -16,6 +18,12 @@ subtest {
 
   ok 0x200C (elem) $Unicode::PRECIS::Tables::JoinControl::set,
      '0x200C in JoinControl set';
+
+  ok 0x114E (elem) $Unicode::PRECIS::Tables::OldHangulJamo::set,
+     '0x114E in OldHangulJamo set';
+
+  ok 0x11A0 (elem) $Unicode::PRECIS::Tables::OldHangulJamo::set,
+     '0x11A0 in OldHangulJamo set';
 }, 'Test tables';
 
 #-------------------------------------------------------------------------------
