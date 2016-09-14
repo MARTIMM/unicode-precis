@@ -12,27 +12,27 @@ use v6.c;
 #say "A: ", @*ARGS.perl;
 
 # Search through UnicodeData.txt
-multi sub MAIN ( 'UCD', Str $ucd-dir = '9.0', Str :$mod-name!, Str :$ucd-cat! ) {
+multi sub MAIN ( 'UCD', Str $ucd-dir = '9.0', Str :$mod-name!, Str :$cat! ) {
 
-  the-work( :$ucd-dir, :$mod-name, :cat($ucd-cat), :worker(&ucd-db));
+  the-work( :$ucd-dir, :$mod-name, :$cat, :worker(&ucd-db));
 }
 
 # Search through PropList.txt
-multi sub MAIN ( 'PRL', Str $ucd-dir = '9.0', Str :$mod-name!, Str :$prl-cat! ) {
+multi sub MAIN ( 'PRL', Str $ucd-dir = '9.0', Str :$mod-name!, Str :$cat! ) {
 
-  the-work( :$ucd-dir, :$mod-name, :cat($prl-cat), :worker(&prl-db));
+  the-work( :$ucd-dir, :$mod-name, :$cat, :worker(&prl-db));
 }
 
 # Search through PropList.txt
-multi sub MAIN ( 'HST', Str $ucd-dir = '9.0', Str :$mod-name!, Str :$hst-cat! ) {
+multi sub MAIN ( 'HST', Str $ucd-dir = '9.0', Str :$mod-name!, Str :$cat! ) {
 
-  the-work( :$ucd-dir, :$mod-name, :cat($hst-cat), :worker(&hst-db));
+  the-work( :$ucd-dir, :$mod-name, :$cat, :worker(&hst-db));
 }
 
 # Search through PropList.txt
-multi sub MAIN ( 'DGC', Str $ucd-dir = '9.0', Str :$mod-name!, Str :$dgc-cat! ) {
+multi sub MAIN ( 'DGC', Str $ucd-dir = '9.0', Str :$mod-name!, Str :$cat! ) {
 
-  the-work( :$ucd-dir, :$mod-name, :cat($dgc-cat), :worker(&dgc-db));
+  the-work( :$ucd-dir, :$mod-name, :$cat, :worker(&dgc-db));
 }
 
 #-------------------------------------------------------------------------------
@@ -64,16 +64,16 @@ sub USAGE ( ) {
   Usage:
 
     Search through the UnicodeData.txt file
-    > generate-module.pl6 [<ucd-dir> ='9.0'] --mod-name=<Str> --ucd-cat=<List> UCD
+    > generate-module.pl6 [<ucd-dir> ='9.0'] --mod-name=<Str> --cat=<List> UCD
 
     Search through the PropList.txt file
-    > generate-module.pl6 [<ucd-dir> ='9.0'] --mod-name=<Str> --prl-cat=<List> PRL
+    > generate-module.pl6 [<ucd-dir> ='9.0'] --mod-name=<Str> --cat=<List> PRL
 
     Search through the HangulSyllableType.txt file
-    > generate-module.pl6 [<ucd-dir> ='9.0'] --mod-name=<Str> --hst-cat=<List> HST
+    > generate-module.pl6 [<ucd-dir> ='9.0'] --mod-name=<Str> --cat=<List> HST
 
     Search through the extracted/DerivedGeneralCategory.txt file
-    > generate-module.pl6 [<ucd-dir> ='9.0'] --mod-name=<Str> --dgc-cat=<List> DGC
+    > generate-module.pl6 [<ucd-dir> ='9.0'] --mod-name=<Str> --cat=<List> DGC
 
   Arguments
     ucd-dir             Directory where unicode data is to be found. Default
@@ -93,21 +93,21 @@ sub USAGE ( ) {
                         moved to other places.
 
     When UCD (Search through UnicodeData.txt)
-    --ucd-cat           This is a list of comma separated strings. These
+    --cat               This is a list of comma separated strings. These
                         strings are searched in the UnicodeData.txt from
                         http://unicode.org/Public/9.0.0/ucd/UnicodeData.txt.
                         This file must be found in the current directory
 
     When PRL (Search through PropList.txt)
-    --prl-cat           This is a list of comma separated strings just as above
+    --cat               This is a list of comma separated strings just as above
                         but has other catagory names.
 
     When HST (Search through HangulSyllableType.txt)
-    --hst-cat           This is a list of comma separated strings just as above
+    --cat               This is a list of comma separated strings just as above
                         but has other catagory names.
 
     When DGC (Search through extracted/DerivedGeneralCategory.txt)
-    --dgc-cat           This is a list of comma separated strings just as above
+    --cat               This is a list of comma separated strings just as above
                         but has other catagory names.
 
   EO-USE
