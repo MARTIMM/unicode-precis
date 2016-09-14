@@ -7,4 +7,5 @@ generate-module --mod-name='NonCharCodepoint' --prl-cat='Noncharacter_Code_Point
 
 generate-module --mod-name='OldHangulJamo' --hst-cat='V,T,L' HST
 
+generate-module --mod-name='Unassigned' --dgc-cat='Cn' DGC
 

@@ -6,6 +6,7 @@ use Unicode::PRECIS::Tables::GeneralCatagory;
 use Unicode::PRECIS::Tables::JoinControl;
 use Unicode::PRECIS::Tables::OldHangulJamo;
 use Unicode::PRECIS::Tables::NonCharCodepoint;
+use Unicode::PRECIS::Tables::Unassigned;
 
 #-------------------------------------------------------------------------------
 subtest {
@@ -31,6 +32,12 @@ subtest {
 
   ok 0x5FFFE (elem) $Unicode::PRECIS::Tables::NonCharCodepoint::set,
      '0x5FFFE in NonCharCodepoint set';
+
+  ok 0x0BE5 (elem) $Unicode::PRECIS::Tables::Unassigned::set,
+     '0x0BE5 in Unassigned set';
+
+  ok 0x10CF4 (elem) $Unicode::PRECIS::Tables::Unassigned::set,
+     '0x10CF4 in Unassigned set';
 }, 'Test tables';
 
 #-------------------------------------------------------------------------------

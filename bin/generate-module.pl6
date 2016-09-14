@@ -29,6 +29,12 @@ multi sub MAIN ( 'HST', Str $ucd-dir = '9.0', Str :$mod-name!, Str :$hst-cat! ) 
   the-work( :$ucd-dir, :$mod-name, :cat($hst-cat), :worker(&hst-db));
 }
 
+# Search through PropList.txt
+multi sub MAIN ( 'DGC', Str $ucd-dir = '9.0', Str :$mod-name!, Str :$dgc-cat! ) {
+
+  the-work( :$ucd-dir, :$mod-name, :cat($dgc-cat), :worker(&dgc-db));
+}
+
 #-------------------------------------------------------------------------------
 sub the-work ( Str :$ucd-dir, Str :$mod-name, Str :$cat, Callable :$worker ) {
 
@@ -66,6 +72,9 @@ sub USAGE ( ) {
     Search through the HangulSyllableType.txt file
     > generate-module.pl6 [<ucd-dir> ='9.0'] --mod-name=<Str> --hst-cat=<List> HST
 
+    Search through the extracted/DerivedGeneralCategory.txt file
+    > generate-module.pl6 [<ucd-dir> ='9.0'] --mod-name=<Str> --dgc-cat=<List> DGC
+
   Arguments
     ucd-dir             Directory where unicode data is to be found. Default
                         is set to './9.0'.
@@ -94,7 +103,11 @@ sub USAGE ( ) {
                         but has other catagory names.
 
     When HST (Search through HangulSyllableType.txt)
-    --prl-cat           This is a list of comma separated strings just as above
+    --hst-cat           This is a list of comma separated strings just as above
+                        but has other catagory names.
+
+    When DGC (Search through extracted/DerivedGeneralCategory.txt)
+    --dgc-cat           This is a list of comma separated strings just as above
                         but has other catagory names.
 
   EO-USE
@@ -243,6 +256,36 @@ sub hst-db ( List :cat($hst-cat) --> Hash ) {
   }
 
   $hst-data;
+}
+
+#-------------------------------------------------------------------------------
+sub dgc-db ( List :cat($dgc-cat) --> Hash ) {
+
+  my Map $dgc-names .= new( < codepoint property >.kv );
+  my Hash $dgc-data = {};
+
+  for 'extracted/DerivedGeneralCategory.txt'.IO.lines -> $line is copy {
+
+    # Comments and empty lines are removed
+    $line ~~ s/ \s* '#' .* $//;
+    next if $line ~~ m/^ \h* $/;
+
+    # Split into the several fields
+    my Array $dgc-entry = [$line.split(/ \s* ';' \s* /)];
+    my Str $catagory = $dgc-entry[1];
+
+    if $catagory ~~ any (@$dgc-cat) {
+      for ^ $dgc-names.elems -> $ui {
+        my $entry = "0x$dgc-entry[0]";
+        $entry ~~ s/ '..' /..0x/;
+
+        $dgc-data{$entry}{$dgc-names{$ui}} =
+          $dgc-entry[$ui] if ? $dgc-entry[$ui];
+      }
+    }
+  }
+
+  $dgc-data;
 }
 
 #-------------------------------------------------------------------------------
