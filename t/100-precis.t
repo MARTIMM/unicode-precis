@@ -3,12 +3,6 @@ use Test;
 
 use Unicode::PRECIS;
 use Unicode::PRECIS::Tables;
-#use Unicode::PRECIS::Tables::GeneralCatagory;
-#use Unicode::PRECIS::Tables::JoinControl;
-#use Unicode::PRECIS::Tables::OldHangulJamo;
-#use Unicode::PRECIS::Tables::NonCharCodepoint;
-#use Unicode::PRECIS::Tables::Unassigned;
-#use Unicode::PRECIS::Tables::Controls;
 
 #-------------------------------------------------------------------------------
 subtest {
