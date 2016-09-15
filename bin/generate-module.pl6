@@ -295,39 +295,58 @@ sub generate-module (
   --> Nil
   ) {
 
-  my $class-text = Qs:q:to/HEADER/;
-    use v6.c;
-    unit package Unicode;
+  my Str $class-text;
 
-    module $mod-name {
+  my Str $fn = 'Tables.pm6';
+  if $fn.IO ~~ :r {
+say "Fount $fn";
+    $class-text = slurp($fn);
 
-    HEADER
+    my Str $new-class-text = [~]
+      "module $mod-name \{\n\n";
+    $new-class-text ~= 'our $set = Set.new: (' ~ "\n    ";
+    $new-class-text ~= data-to-strlist($data);
+    $new-class-text ~= "\n  ).flat;\n";
+    $new-class-text ~= "};\n\n### NEW SETS ###\n";
 
-#  if $gen-table {
-#    $class-text ~= '    our $table = %(' ~ "\n    ";
-#    for $data.keys.sort -> $codepoint {
-#
-#    }
-#
-#    $class-text ~= "  );\n";
-#  }
-#
-#  elsif $gen-set {
+    $class-text ~~ s/'### NEW SETS ###'/$new-class-text/;
+  }
+  
+  else {
+    $class-text = Qs:q:to/HEADER/;
+      use v6.c;
+      
+      # Place file Tables.pm6 in directory ./Unicode/PRECIS
+      # Load with 'use Unicode::PRECIS::Tables'
+      # Use data as '0x200C (elem) $Unicode::PRECIS::Tables::JoinControl::set'
+
+      unit package Unicode;
+
+      module $mod-name {
+
+      HEADER
+
     $class-text ~= '  our $set = Set.new: (' ~ "\n    ";
-    my $cnt = 1;
-    for $data.keys.sort -> $cp {
-      $class-text ~= "$cp, ";
-      $class-text ~= "\n    " unless $cnt++ % 8;
-    }
-
+    $class-text ~= data-to-strlist($data);
     $class-text ~= "\n  ).flat;\n";
-#  }
-
-  $class-text ~= "};\n";
+    $class-text ~= "};\n\n### NEW SETS ###\n";
+  }
 
 say "\n$class-text";
-  my Str $fn = $mod-name;
-  $fn ~~ s:g/ [ <-[:]>+ '::' ] //;
 
-  spurt( "$fn.pm6", $class-text);
+  spurt( $fn, $class-text);
 }
+
+#-------------------------------------------------------------------------------
+sub data-to-strlist ( Hash $data --> Str ) {
+
+  my Str $text = '';
+  my Int $cnt = 1;
+  for $data.keys.sort -> $cp {
+    $text ~= "$cp, ";
+    $text ~= "\n    " unless $cnt++ % 8;
+  }
+
+  $text;
+}
+
