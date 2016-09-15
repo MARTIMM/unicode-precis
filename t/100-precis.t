@@ -45,6 +45,9 @@ subtest {
 
   ok 0x008A (elem) $Unicode::PRECIS::Tables::Controls::set,
      '0x008A in Controls set';
+
+  ok 0x0064 (elem) $ascii7, '0x0064 in Ascii7 set';
+
 }, 'Test tables';
 
 #-------------------------------------------------------------------------------
@@ -57,6 +60,7 @@ subtest {
   is $exceptions{0x0660}, 'CONTEXTO', 'exceptions check for CONTEXTO';
   is $properties{$exceptions{0x0660}}, $properties<CONTEXTO>,
      "properties check for CONTEXTO";
+
 }, 'Test exceptions';
 
 #-------------------------------------------------------------------------------

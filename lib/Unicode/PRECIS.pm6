@@ -37,7 +37,7 @@ class PRECIS {
     $data;
   };
 
-  # 2.6.  Exceptions (F)
+  # rfc5892 2.6.  Exceptions (F)
   our $exceptions is export = mk-map(q:to/ENDTABLE/);
     # PVALID -- Would otherwise have been DISALLOWED
 
@@ -94,10 +94,13 @@ class PRECIS {
 
     ENDTABLE
 
-  # 2.7.  BackwardCompatible (G)
+  # rfc5892 2.7.  BackwardCompatible (G)
   our $backwardcompatible is export = mk-map(q:to/ENDTABLE/);
 
     ENDTABLE
+
+  # rfc7564 9.11.  ASCII7 (K)
+  our $ascii7 is export = Set.new: ( 0x0021..0x007E ).flat;
 
   my Set $Unassigned .= new();
   my Set $ASCII7 .= new();
