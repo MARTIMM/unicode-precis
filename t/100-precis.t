@@ -7,6 +7,7 @@ use Unicode::PRECIS::Tables::JoinControl;
 use Unicode::PRECIS::Tables::OldHangulJamo;
 use Unicode::PRECIS::Tables::NonCharCodepoint;
 use Unicode::PRECIS::Tables::Unassigned;
+use Unicode::PRECIS::Tables::Controls;
 
 #-------------------------------------------------------------------------------
 subtest {
@@ -38,6 +39,12 @@ subtest {
 
   ok 0x10CF4 (elem) $Unicode::PRECIS::Tables::Unassigned::set,
      '0x10CF4 in Unassigned set';
+
+  ok 0x001C (elem) $Unicode::PRECIS::Tables::Controls::set,
+     '0x001C in Controls set';
+
+  ok 0x008A (elem) $Unicode::PRECIS::Tables::Controls::set,
+     '0x008A in Controls set';
 }, 'Test tables';
 
 #-------------------------------------------------------------------------------
