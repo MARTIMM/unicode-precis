@@ -197,4 +197,12 @@ class PRECIS {
     state $set = Set.new(<L V T>);
     $codepoint.uniprop('Hangul_Syllable_Type') (elem) $set;
   }
+
+  #-----------------------------------------------------------------------------
+  # 9.10.  Unassigned (J)
+  method unassigned ( Int $codepoint --> Bool ) {
+
+    $codepoint.uniprop('General_Category') eq 'Cn'
+    and ;
+  }
 }
