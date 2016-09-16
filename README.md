@@ -22,6 +22,9 @@ Further needed information from
 
 ### Perl 6
 
+NOTE: At the moment jvm does not yet support several unicode functions such as
+unival, uniprop etc. Moarvm does support them. I'll try to emulate them but it isn't clear if it is fast enaugh.
+
 Perl 6 uses graphemes as a base for the Str string type. These are the visible entities which show as a single symbol and are counted as such with the ```Str.chars``` method. From this, normal forms can be generated using the string methods NFC, NFD, NFKC and NFKD. Furthermore the strings can be encoded to utf-8.
 
 ## Implementation track
@@ -37,7 +40,7 @@ Naming of modules;
   Unicode::PRECIS::Freeform                                 from rfc7564
   Unicode::PRECIS::Freeform::OpaqueString                   from rfc7613
 
-## Versions of perl, moarvm and MongoDB
+## Versions of perl, moarvm
 
 This project is tested with latest Rakudo built on MoarVM implementing Perl v6.c.
 
@@ -68,4 +71,4 @@ Marcel Timmerman translation of the modules for perl 6
 ```
 ## Contact
 
-MARTIMM on github: MARTIMM/mongo-perl6-driver
+MARTIMM on github: MARTIMM
