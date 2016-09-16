@@ -14,7 +14,7 @@ class PRECIS {
     < PVALID ID-PVAL FREE-PVAL CONTEXTJ CONTEXTO
       DISALLOWED ID-DIS FREE-DIS UNASSIGNED
 
-      NOT-IN-UCD
+      NOT-IN-SET
     >.kv.reverse
   );
 #  subset PropValue of Str where $_ (elem) $properties;
@@ -95,7 +95,7 @@ class PRECIS {
     ENDTABLE
 
   # rfc5892 2.7.  BackwardCompatible (G)
-  our $backwardcompatible is export = mk-map(q:to/ENDTABLE/);
+  our $backward-compatible is export = mk-map(q:to/ENDTABLE/);
 
     ENDTABLE
 
@@ -133,12 +133,13 @@ class PRECIS {
 #  method exceptions ( Int $codepoint --> PropValue ) {
   method exceptions ( Int $codepoint --> Str ) {
 
-    $exceptions{$codepoint} // 'NOT-IN-UCD';
+    $exceptions{$codepoint} // 'NOT-IN-SET';
   }
 
   #-----------------------------------------------------------------------------
-  method backwardcompatible ( Int $codepoint ) {
+  method backward-compatible ( Int $codepoint ) {
 
+    $backward-compatible{$codepoint} // 'NOT-IN-SET';
   }
 
   #-----------------------------------------------------------------------------

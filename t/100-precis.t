@@ -86,8 +86,12 @@ subtest {
      chrs($codepoint) ~ " ($codepoint.fmt('0x%06x')) is a $p.exceptions($codepoint) exception";
 
   $codepoint = 0x10FEEE;
-  ok $p.exceptions($codepoint) ~~ 'NOT-IN-UCD',
+  ok $p.exceptions($codepoint) ~~ 'NOT-IN-SET',
      chrs($codepoint) ~ " ($codepoint.fmt('0x%06x')) is a $p.exceptions($codepoint) exception";
+
+  $codepoint = 0x100E;
+  ok $p.backward-compatible($codepoint) ~~ 'NOT-IN-SET',
+     chrs($codepoint) ~ " ($codepoint.fmt('0x%06x')) is a $p.backward-compatible($codepoint) backwards compatible";
 
 }, "Test PRECIS";
 
