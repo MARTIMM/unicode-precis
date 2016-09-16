@@ -2,10 +2,15 @@ use v6.c;
 use Test;
 
 use Unicode::PRECIS;
-use Unicode::PRECIS::Tables;
+#use Unicode::PRECIS::Tables;
 
 #-------------------------------------------------------------------------------
 subtest {
+  test-match( 0x00C0, 'Lu');
+  test-match( 0x00e9, 'Ll');
+
+  ok 
+#`{{
   ok 0x00C0 (elem) $Unicode::PRECIS::Tables::GeneralCatagory::set,
      '0x00C0 in GeneralCatagory set';
 
@@ -40,6 +45,7 @@ subtest {
 
   ok 0x008A (elem) $Unicode::PRECIS::Tables::Controls::set,
      '0x008A in Controls set';
+}}
 
   ok 0x0064 (elem) $ascii7, '0x0064 in Ascii7 set';
 
@@ -59,4 +65,40 @@ subtest {
 }, 'Test exceptions';
 
 #-------------------------------------------------------------------------------
+subtest {
+
+  my Unicode::PRECIS $p .= new;
+
+  my Int $codepoint = 0x05DD;
+  ok $p.letter-digits($codepoint),
+     chrs($codepoint) ~ " ($codepoint.fmt('0x%06x')) in letter-digits set";
+
+  $codepoint = 0x05C6;
+  ok !$p.letter-digits($codepoint),
+     chrs($codepoint) ~ " ($codepoint.fmt('0x%06x')) not in letter-digits set";
+
+  $codepoint = 0x0660;
+  ok $p.exceptions($codepoint) ~~ 'CONTEXTO',
+     chrs($codepoint) ~ " ($codepoint.fmt('0x%06x')) is a $p.exceptions($codepoint) exception";
+
+  $codepoint = 0x00DF;
+  ok $p.exceptions($codepoint) ~~ 'PVALID',
+     chrs($codepoint) ~ " ($codepoint.fmt('0x%06x')) is a $p.exceptions($codepoint) exception";
+
+  $codepoint = 0x10FEEE;
+  ok $p.exceptions($codepoint) ~~ 'NOT-IN-UCD',
+     chrs($codepoint) ~ " ($codepoint.fmt('0x%06x')) is a $p.exceptions($codepoint) exception";
+
+}, "Test PRECIS";
+
+#-------------------------------------------------------------------------------
 done-testing;
+
+
+#-------------------------------------------------------------------------------
+sub test-match ( Int $codepoint, Str $category) {
+
+  ok $codepoint.unimatch($category),
+     chrs($codepoint) ~ " ($codepoint.fmt('0x%06x')) in $category set";
+}
+

@@ -7,17 +7,17 @@ use v6.c;
 #-------------------------------------------------------------------------------
 unit package Unicode;
 
-# 2.1   LetterDigits (A)
-#   A: General_Category(cp) is in {Ll, Lu, Lo, Nd, Lm, Mn, Mc}
-
 class PRECIS {
 
 #  enum Behavioural < Valid ContextJ ContextO Disallowed Unassigned>;
   our $properties is export = Map.new(
-    < PVALID ID_PVAL FREE_PVAL CONTEXTJ CONTEXTO
-      DISALLOWED ID_DIS FREE_DIS UNASSIGNED
+    < PVALID ID-PVAL FREE-PVAL CONTEXTJ CONTEXTO
+      DISALLOWED ID-DIS FREE-DIS UNASSIGNED
+
+      NOT-IN-UCD
     >.kv.reverse
   );
+#  subset PropValue of Str where $_ (elem) $properties;
 
   #-----------------------------------------------------------------------------
   sub mk-map ( Str $map-table --> Hash ) {
@@ -103,13 +103,13 @@ class PRECIS {
   our $ascii7 is export = Set.new: ( 0x0021..0x007E ).flat;
 
   my Set $Unassigned .= new();
-  my Set $ASCII7 .= new();
+#  my Set $ASCII7 .= new();
   my Set $JoinControl .= new();
   my Set $OldHangulJamo .= new();
   my Set $PrecisIgnorableProperties .= new();
   my Set $Controls .= new();
   my Set $HasCompat .= new();
-  my Set $LetterDigits .= new();
+#  my Set $LetterDigits .= new();
   my Set $OtherLetterDigits .= new();
   my Set $Spaces .= new();
   my Set $Symbols .= new();
@@ -117,6 +117,27 @@ class PRECIS {
 
   #-----------------------------------------------------------------------------
   submethod BUILD ( ) {
+
+  }
+
+  #-----------------------------------------------------------------------------
+  # 9.1.  LetterDigits (A)
+  method letter-digits ( Int $codepoint --> Bool ) {
+
+    state $set = Set.new(<Ll Lu Lo Nd Lm Mn Mc>);
+    $codepoint.uniprop('General_Category') (elem) $set;
+  }
+
+  #-----------------------------------------------------------------------------
+  # 9.6.  Exceptions (F)
+#  method exceptions ( Int $codepoint --> PropValue ) {
+  method exceptions ( Int $codepoint --> Str ) {
+
+    $exceptions{$codepoint} // 'NOT-IN-UCD';
+  }
+
+  #-----------------------------------------------------------------------------
+  method backwardcompatible ( Int $codepoint ) {
 
   }
 
@@ -157,13 +178,4 @@ class PRECIS {
 
   }
 
-  #-----------------------------------------------------------------------------
-  method exceptions ( Int $codepoint ) {
-
-  }
-
-  #-----------------------------------------------------------------------------
-  method backwardcompatible ( Int $codepoint ) {
-
-  }
 }

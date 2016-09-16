@@ -46,9 +46,11 @@ class PRECIS::Identifier is Unicode::PRECIS {
   #-----------------------------------------------------------------------------
   method calculate-value ( Int $codepoint --> Int ) {
 
-    if $codepoint (elem) $exceptions { self.exceptions($codepoint); }
+    if $codepoint (elem) $Unicode::PRECIS::exceptions {
+      self.exceptions($codepoint);
+    }
 
-    elsif $codepoint (elem) $backwardcompatible {
+    elsif $codepoint (elem) $Unicode::PRECIS::backwardcompatible {
       self.backwardcompatible($codepoint);
     }
 
