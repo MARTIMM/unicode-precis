@@ -71,35 +71,43 @@ subtest {
 
   my Int $codepoint = 0x05DD;
   ok $p.letter-digits($codepoint),
-     chrs($codepoint) ~ " ($codepoint.fmt('0x%06x')) in letter-digits set";
+     "$codepoint.fmt('0x%06x') in letter-digits set";
 
   $codepoint = 0x05C6;
   nok $p.letter-digits($codepoint),
-     chrs($codepoint) ~ " ($codepoint.fmt('0x%06x')) not in letter-digits set";
+     "$codepoint.fmt('0x%06x') not in letter-digits set";
 
   $codepoint = 0x0660;
   ok $p.exceptions($codepoint) ~~ 'CONTEXTO',
-     chrs($codepoint) ~ " ($codepoint.fmt('0x%06x')) is a $p.exceptions($codepoint) exception";
+     "$codepoint.fmt('0x%06x') is a $p.exceptions($codepoint) exception";
 
   $codepoint = 0x00DF;
   ok $p.exceptions($codepoint) ~~ 'PVALID',
-     chrs($codepoint) ~ " ($codepoint.fmt('0x%06x')) is a $p.exceptions($codepoint) exception";
+     "$codepoint.fmt('0x%06x') is a $p.exceptions($codepoint) exception";
 
   $codepoint = 0x10FEEE;
   ok $p.exceptions($codepoint) ~~ 'NOT-IN-SET',
-     chrs($codepoint) ~ " ($codepoint.fmt('0x%06x')) is a $p.exceptions($codepoint) exception";
+     "$codepoint.fmt('0x%06x') is a $p.exceptions($codepoint) exception";
 
   $codepoint = 0x100E;
   ok $p.backward-compatible($codepoint) ~~ 'NOT-IN-SET',
-     chrs($codepoint) ~ " ($codepoint.fmt('0x%06x')) is a $p.backward-compatible($codepoint) backwards compatible";
+     "$codepoint.fmt('0x%06x') is a $p.backward-compatible($codepoint) backwards compatible";
 
   $codepoint = 0x00DF;
   nok $p.join-control($codepoint),
-     chrs($codepoint) ~ " ($codepoint.fmt('0x%06x')) is not a join control";
+     "$codepoint.fmt('0x%06x') is not a join control";
 
   $codepoint = 0x200C;
   ok $p.join-control($codepoint),
-     chrs($codepoint) ~ " ($codepoint.fmt('0x%06x')) is a join control";
+     "$codepoint.fmt('0x%06x') is a join control";
+
+  $codepoint = 0x11A7;
+  ok $p.old-hangul-jamo($codepoint),
+     "$codepoint.fmt('0x%06x') in old-hangul-jamo set";
+
+  $codepoint = 0x01A7;
+  nok $p.old-hangul-jamo($codepoint),
+     "$codepoint.fmt('0x%06x') not in old-hangul-jamo set";
 
 }, "Test PRECIS";
 

@@ -106,7 +106,7 @@ class PRECIS {
   my Set $Unassigned .= new();
 #  my Set $ASCII7 .= new();
 #  my Set $JoinControl .= new();
-  my Set $OldHangulJamo .= new();
+#  my Set $OldHangulJamo .= new();
   my Set $PrecisIgnorableProperties .= new();
   my Set $Controls .= new();
   my Set $HasCompat .= new();
@@ -158,6 +158,7 @@ class PRECIS {
   method behavioural-rule ( ) {
 
   }
+
   #-----------------------------------------------------------------------------
   # 9.1.  LetterDigits (A)
   method letter-digits ( Int $codepoint --> Bool ) {
@@ -176,7 +177,8 @@ class PRECIS {
 
   #-----------------------------------------------------------------------------
   # 9.7.  BackwardCompatible (G)
-  method backward-compatible ( Int $codepoint ) {
+#  method backward-compatible ( Int $codepoint -- PropValue) {
+  method backward-compatible ( Int $codepoint -- Str) {
 
     $backward-compatible{$codepoint} // 'NOT-IN-SET';
   }
@@ -186,5 +188,13 @@ class PRECIS {
   method join-control ( Int $codepoint --> Bool ) {
 
     $codepoint.uniprop-bool('Join_Control');
+  }
+
+  #-----------------------------------------------------------------------------
+  # 9.9.  OldHangulJamo (I)
+  method old-hangul-jamo ( Int $codepoint --> Bool ) {
+
+    state $set = Set.new(<L V T>);
+    $codepoint.uniprop('Hangul_Syllable_Type') (elem) $set;
   }
 }
