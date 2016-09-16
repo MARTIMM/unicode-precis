@@ -102,9 +102,10 @@ class PRECIS {
   # rfc7564 9.11.  ASCII7 (K)
   our $ascii7 is export = Set.new: ( 0x0021..0x007E ).flat;
 
+
   my Set $Unassigned .= new();
 #  my Set $ASCII7 .= new();
-  my Set $JoinControl .= new();
+#  my Set $JoinControl .= new();
   my Set $OldHangulJamo .= new();
   my Set $PrecisIgnorableProperties .= new();
   my Set $Controls .= new();
@@ -120,27 +121,6 @@ class PRECIS {
 
   }
 
-  #-----------------------------------------------------------------------------
-  # 9.1.  LetterDigits (A)
-  method letter-digits ( Int $codepoint --> Bool ) {
-
-    state $set = Set.new(<Ll Lu Lo Nd Lm Mn Mc>);
-    $codepoint.uniprop('General_Category') (elem) $set;
-  }
-
-  #-----------------------------------------------------------------------------
-  # 9.6.  Exceptions (F)
-#  method exceptions ( Int $codepoint --> PropValue ) {
-  method exceptions ( Int $codepoint --> Str ) {
-
-    $exceptions{$codepoint} // 'NOT-IN-SET';
-  }
-
-  #-----------------------------------------------------------------------------
-  method backward-compatible ( Int $codepoint ) {
-
-    $backward-compatible{$codepoint} // 'NOT-IN-SET';
-  }
 
   #-----------------------------------------------------------------------------
   # 7.  Order of Operations
@@ -178,5 +158,33 @@ class PRECIS {
   method behavioural-rule ( ) {
 
   }
+  #-----------------------------------------------------------------------------
+  # 9.1.  LetterDigits (A)
+  method letter-digits ( Int $codepoint --> Bool ) {
 
+    state $set = Set.new(<Ll Lu Lo Nd Lm Mn Mc>);
+    $codepoint.uniprop('General_Category') (elem) $set;
+  }
+
+  #-----------------------------------------------------------------------------
+  # 9.6.  Exceptions (F)
+#  method exceptions ( Int $codepoint --> PropValue ) {
+  method exceptions ( Int $codepoint --> Str ) {
+
+    $exceptions{$codepoint} // 'NOT-IN-SET';
+  }
+
+  #-----------------------------------------------------------------------------
+  # 9.7.  BackwardCompatible (G)
+  method backward-compatible ( Int $codepoint ) {
+
+    $backward-compatible{$codepoint} // 'NOT-IN-SET';
+  }
+
+  #-----------------------------------------------------------------------------
+  # 9.8.  JoinControl (H)
+  method join-control ( Int $codepoint --> Bool ) {
+
+    $codepoint.uniprop-bool('Join_Control');
+  }
 }

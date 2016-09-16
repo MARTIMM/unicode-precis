@@ -74,7 +74,7 @@ subtest {
      chrs($codepoint) ~ " ($codepoint.fmt('0x%06x')) in letter-digits set";
 
   $codepoint = 0x05C6;
-  ok !$p.letter-digits($codepoint),
+  nok $p.letter-digits($codepoint),
      chrs($codepoint) ~ " ($codepoint.fmt('0x%06x')) not in letter-digits set";
 
   $codepoint = 0x0660;
@@ -92,6 +92,14 @@ subtest {
   $codepoint = 0x100E;
   ok $p.backward-compatible($codepoint) ~~ 'NOT-IN-SET',
      chrs($codepoint) ~ " ($codepoint.fmt('0x%06x')) is a $p.backward-compatible($codepoint) backwards compatible";
+
+  $codepoint = 0x00DF;
+  nok $p.join-control($codepoint),
+     chrs($codepoint) ~ " ($codepoint.fmt('0x%06x')) is not a join control";
+
+  $codepoint = 0x200C;
+  ok $p.join-control($codepoint),
+     chrs($codepoint) ~ " ($codepoint.fmt('0x%06x')) is a join control";
 
 }, "Test PRECIS";
 
