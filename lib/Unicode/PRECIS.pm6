@@ -102,7 +102,7 @@ class PRECIS {
   our $ascii7 is export = Set.new: ( 0x0021..0x007E ).flat;
 
 
-  my Set $Unassigned .= new();
+#  my Set $Unassigned .= new();
 #  my Set $ASCII7 .= new();
 #  my Set $JoinControl .= new();
 #  my Set $OldHangulJamo .= new();
@@ -197,7 +197,6 @@ class PRECIS {
     $codepoint.uniprop('Hangul_Syllable_Type') (elem) $set;
   }
 
-#`{{}}
   #-----------------------------------------------------------------------------
   # 9.10.  Unassigned (J)
   method unassigned ( Int $codepoint --> Bool ) {
@@ -206,4 +205,10 @@ class PRECIS {
     and not $codepoint (elem) $Unicode::PRECIS::Tables::NonCharCodepoint;
   }
 
+  #-----------------------------------------------------------------------------
+  # 9.11.  ASCII7 (K)
+  method ascii7 ( Int $codepoint --> Bool ) {
+
+    $codepoint (elem) $ascii7;
+  }
 }

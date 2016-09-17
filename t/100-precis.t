@@ -112,6 +112,14 @@ subtest {
   nok $p.unassigned($codepoint),
      "$codepoint.fmt('0x%06x') not in unassigned set";
 
+  $codepoint = 0x0024;
+  ok $p.ascii7($codepoint),
+     "$codepoint.fmt('0x%06x') in ascii 7 set";
+
+  $codepoint = 0xF143;
+  nok $p.ascii7($codepoint),
+     "$codepoint.fmt('0x%06x') not in ascii 7 set";
+
 }, "Test PRECIS";
 
 #-------------------------------------------------------------------------------
