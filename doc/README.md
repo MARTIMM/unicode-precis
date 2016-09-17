@@ -13,7 +13,7 @@ needed to find the proper character classes.
 
 
 
-# Some notes on unicode functions in perl6
+# Some notes on unicode functions in perl6. Still works on version 6.1.0 of UCD
 uniname
 uninames
 unival

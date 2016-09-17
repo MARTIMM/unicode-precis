@@ -2,6 +2,8 @@
 
 # PRECIS Framework: Preparation, Enforcement, and Comparison of Internationalized Strings in Application Protocols
 
+Many tests are based on the Unicode® database as well as the unicode tools from perl6. Not all methods and functions are in place e.g. uniprop() is not yet available in the jvm. Also perl6 seems to be based on Unicode version 6.1.0.
+
 ## Synopsis
 
 ```
@@ -29,7 +31,7 @@ Perl 6 uses graphemes as a base for the Str string type. These are the visible e
 
 ## Implementation track
 
-First the basis of the PRECIS framework will be build. As soon as possible a profile for usernames and passwords follows. This is my first need. When this functions well enough, other profiles can be inserted.
+First the basis of the PRECIS framework will be build. As soon as possible a profile for usernames and passwords follows. This is my first need. When this functions well enough, other profiles can be inserted. Perl 6 unicode is based on UCD version 6.1.0 while I am looking at tables of version 9.0.0.
 
 Naming of modules;
   Unicode::PRECIS                                           from rfc7564
@@ -45,6 +47,8 @@ Naming of modules;
 This project is tested with latest Rakudo built on MoarVM implementing Perl v6.c.
 
 ## Bugs, known limitations and todo
+* Try to use tables when uniprop is not available
+* Try to use the highest possible unicode version when using tables. At the time of writing this 9.0.0.
 
 ## Changelog
 
