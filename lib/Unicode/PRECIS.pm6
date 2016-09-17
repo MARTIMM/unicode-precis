@@ -1,6 +1,6 @@
 use v6.c;
 
-#use Unicode::PRECIS::Cc;
+use Unicode::PRECIS::Tables;
 
 #-------------------------------------------------------------------------------
 # Texts are also taken directly from rfc7564 and rfc5892
@@ -10,13 +10,12 @@ unit package Unicode;
 class PRECIS {
 
 #  enum Behavioural < Valid ContextJ ContextO Disallowed Unassigned>;
-  our $properties is export = Map.new(
-    < PVALID ID-PVAL FREE-PVAL CONTEXTJ CONTEXTO
-      DISALLOWED ID-DIS FREE-DIS UNASSIGNED
+  enum PropValue is export <
+    PVALID ID-PVAL FREE-PVAL CONTEXTJ CONTEXTO
+    DISALLOWED ID-DIS FREE-DIS UNASSIGNED
 
-      NOT-IN-SET
-    >.kv.reverse
-  );
+    NOT-IN-SET
+  >;
 #  subset PropValue of Str where $_ (elem) $properties;
 
   #-----------------------------------------------------------------------------
@@ -31,7 +30,7 @@ class PRECIS {
       ( my Str $codepoint, my Str $property, my Str $comment
       ) = $line.split(/[';'\s+]|[\s+\#\s+]/); 
 
-      $data{:16($codepoint)} = $property;
+      $data{:16($codepoint)} = PropValue::{$property};
     }
 
     $data;
@@ -169,18 +168,18 @@ class PRECIS {
 
   #-----------------------------------------------------------------------------
   # 9.6.  Exceptions (F)
-#  method exceptions ( Int $codepoint --> PropValue ) {
-  method exceptions ( Int $codepoint --> Str ) {
+  method exceptions ( Int $codepoint --> PropValue ) {
+#  method exceptions ( Int $codepoint --> Str ) {
 
-    $exceptions{$codepoint} // 'NOT-IN-SET';
+    $exceptions{$codepoint} // PropValue::<NOT-IN-SET>;
   }
 
   #-----------------------------------------------------------------------------
   # 9.7.  BackwardCompatible (G)
-#  method backward-compatible ( Int $codepoint -- PropValue) {
-  method backward-compatible ( Int $codepoint -- Str) {
+  method backward-compatible ( Int $codepoint --> PropValue) {
+#  method backward-compatible ( Int $codepoint --> Str) {
 
-    $backward-compatible{$codepoint} // 'NOT-IN-SET';
+    $backward-compatible{$codepoint} // PropValue::<NOT-IN-SET>;
   }
 
   #-----------------------------------------------------------------------------
@@ -198,11 +197,13 @@ class PRECIS {
     $codepoint.uniprop('Hangul_Syllable_Type') (elem) $set;
   }
 
+#`{{}}
   #-----------------------------------------------------------------------------
   # 9.10.  Unassigned (J)
   method unassigned ( Int $codepoint --> Bool ) {
 
     $codepoint.uniprop('General_Category') eq 'Cn'
-    and ;
+    and not $codepoint (elem) $Unicode::PRECIS::Tables::NonCharCodepoint;
   }
+
 }

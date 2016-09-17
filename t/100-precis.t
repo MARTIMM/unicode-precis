@@ -55,12 +55,7 @@ subtest {
 subtest {
 
   is $exceptions{0x00DF}, 'PVALID', 'exceptions check for PVALID';
-  is $properties{$exceptions{0x00DF}}, $properties<PVALID>,
-     "properties check for PVALID";
-
   is $exceptions{0x0660}, 'CONTEXTO', 'exceptions check for CONTEXTO';
-  is $properties{$exceptions{0x0660}}, $properties<CONTEXTO>,
-     "properties check for CONTEXTO";
 
 }, 'Test exceptions';
 
@@ -108,6 +103,14 @@ subtest {
   $codepoint = 0x01A7;
   nok $p.old-hangul-jamo($codepoint),
      "$codepoint.fmt('0x%06x') not in old-hangul-jamo set";
+
+  $codepoint = 0xFDDA;
+  ok $p.unassigned($codepoint),
+     "$codepoint.fmt('0x%06x') in unassigned set";
+
+  $codepoint = 0xFDC0;
+  nok $p.unassigned($codepoint),
+     "$codepoint.fmt('0x%06x') not in unassigned set";
 
 }, "Test PRECIS";
 
