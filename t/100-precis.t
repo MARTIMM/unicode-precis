@@ -2,12 +2,18 @@ use v6.c;
 use Test;
 
 use Unicode::PRECIS;
-#use Unicode::PRECIS::Tables;
+use Unicode::PRECIS::Tables;
 
 #-------------------------------------------------------------------------------
 subtest {
   test-match( 0x00C0, 'Lu');
   test-match( 0x00e9, 'Ll');
+
+  ok 0x5FFFE (elem) $Unicode::PRECIS::Tables::NonCharCodepoint::set,
+     '0x5FFFE in NonCharCodepoint set';
+
+  ok 0xFDD0 (elem) $Unicode::PRECIS::Tables::NonCharCodepoint::set,
+     '0x5FFFE in NonCharCodepoint set';
 
   ok 
 #`{{
@@ -127,6 +133,18 @@ subtest {
   $codepoint = 0xF140;
   nok $p.control($codepoint),
      "$codepoint.fmt('0x%06x') not in control set";
+
+  $codepoint = 0x00AD;
+  ok $p.precis-ignorable-properties($codepoint),
+     "$codepoint.fmt('0x%06x') in ignorable set";
+
+  $codepoint = 0xFDD0;
+  ok $p.precis-ignorable-properties($codepoint),
+     "$codepoint.fmt('0x%06x') in ignorable set";
+
+  $codepoint = 0xFFFE;
+  nok $p.precis-ignorable-properties($codepoint),
+     "$codepoint.fmt('0x%06x') not in ignorable set";
 
 }, "Test PRECIS";
 

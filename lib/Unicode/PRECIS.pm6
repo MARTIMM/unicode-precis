@@ -200,7 +200,7 @@ class PRECIS {
   method unassigned ( Int $codepoint --> Bool ) {
 
     $codepoint.uniprop('General_Category') eq 'Cn'
-    and not $codepoint (elem) $Unicode::PRECIS::Tables::NonCharCodepoint;
+    and not ($codepoint (elem) $Unicode::PRECIS::Tables::NonCharCodepoint);
   }
 
   #-----------------------------------------------------------------------------
@@ -215,5 +215,15 @@ class PRECIS {
   method control ( Int $codepoint --> Bool ) {
 
     $codepoint.uniprop('General_Category') eq 'Cc';
+  }
+
+  #-----------------------------------------------------------------------------
+  # 9.13.  PrecisIgnorableProperties (M)
+  method precis-ignorable-properties ( Int $codepoint --> Bool ) {
+
+say "1: ", $codepoint.uniprop-bool('Default_Ignorable_Code_Point');
+say "2: ", $codepoint (elem) $Unicode::PRECIS::Tables::NonCharCodepoint;
+    $codepoint.uniprop-bool('Default_Ignorable_Code_Point')
+    or ($codepoint (elem) $Unicode::PRECIS::Tables::NonCharCodepoint);
   }
 }
