@@ -120,6 +120,14 @@ subtest {
   nok $p.ascii7($codepoint),
      "$codepoint.fmt('0x%06x') not in ascii 7 set";
 
+  $codepoint = 0x008A;
+  ok $p.control($codepoint),
+     "$codepoint.fmt('0x%06x') in control set";
+
+  $codepoint = 0xF140;
+  nok $p.control($codepoint),
+     "$codepoint.fmt('0x%06x') not in control set";
+
 }, "Test PRECIS";
 
 #-------------------------------------------------------------------------------

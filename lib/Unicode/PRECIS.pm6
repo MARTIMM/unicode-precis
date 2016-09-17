@@ -107,7 +107,7 @@ class PRECIS {
 #  my Set $JoinControl .= new();
 #  my Set $OldHangulJamo .= new();
   my Set $PrecisIgnorableProperties .= new();
-  my Set $Controls .= new();
+#  my Set $Controls .= new();
   my Set $HasCompat .= new();
 #  my Set $LetterDigits .= new();
   my Set $OtherLetterDigits .= new();
@@ -169,7 +169,6 @@ class PRECIS {
   #-----------------------------------------------------------------------------
   # 9.6.  Exceptions (F)
   method exceptions ( Int $codepoint --> PropValue ) {
-#  method exceptions ( Int $codepoint --> Str ) {
 
     $exceptions{$codepoint} // PropValue::<NOT-IN-SET>;
   }
@@ -177,7 +176,6 @@ class PRECIS {
   #-----------------------------------------------------------------------------
   # 9.7.  BackwardCompatible (G)
   method backward-compatible ( Int $codepoint --> PropValue) {
-#  method backward-compatible ( Int $codepoint --> Str) {
 
     $backward-compatible{$codepoint} // PropValue::<NOT-IN-SET>;
   }
@@ -210,5 +208,12 @@ class PRECIS {
   method ascii7 ( Int $codepoint --> Bool ) {
 
     $codepoint (elem) $ascii7;
+  }
+
+  #-----------------------------------------------------------------------------
+  # 9.12.  Controls (L)
+  method control ( Int $codepoint --> Bool ) {
+
+    $codepoint.uniprop('General_Category') eq 'Cc';
   }
 }
