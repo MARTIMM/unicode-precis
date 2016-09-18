@@ -138,11 +138,11 @@ subtest {
   ok $p.precis-ignorable-properties($codepoint),
      "$codepoint.fmt('0x%06x') in ignorable set";
 
-  $codepoint = 0xFDD0;
+  $codepoint = 0x5FFFE;
   ok $p.precis-ignorable-properties($codepoint),
      "$codepoint.fmt('0x%06x') in ignorable set";
 
-  $codepoint = 0xFFFE;
+  $codepoint = 0xFFFC;
   nok $p.precis-ignorable-properties($codepoint),
      "$codepoint.fmt('0x%06x') not in ignorable set";
 

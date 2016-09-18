@@ -221,9 +221,7 @@ class PRECIS {
   # 9.13.  PrecisIgnorableProperties (M)
   method precis-ignorable-properties ( Int $codepoint --> Bool ) {
 
-say "1: ", $codepoint.uniprop-bool('Default_Ignorable_Code_Point');
-say "2: ", $codepoint (elem) $Unicode::PRECIS::Tables::NonCharCodepoint;
     $codepoint.uniprop-bool('Default_Ignorable_Code_Point')
-    or ($codepoint (elem) $Unicode::PRECIS::Tables::NonCharCodepoint);
+    or ($codepoint (elem) $Unicode::PRECIS::Tables::NonCharCodepoint::set);
   }
 }
