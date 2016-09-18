@@ -260,4 +260,12 @@ class PRECIS {
 
     not $no-compat;
   }
+
+  #-----------------------------------------------------------------------------
+  # 9.18.  OtherLetterDigits (R)
+  method other-letter-digits ( Int $codepoint --> Bool ) {
+
+    state $set = Set.new(<Lt Nl No Me>);
+    $codepoint.uniprop('General_Category') (elem) $set;
+  }
 }

@@ -187,6 +187,18 @@ subtest {
   nok $p.has-compat($codepoint),
      "$codepoint.fmt('0x%06x') not in has-compat set";
 
+  $codepoint = 0x1F88;
+  ok $p.other-letter-digits($codepoint),
+     "$codepoint.fmt('0x%06x') in other-letter-digits set";
+
+  $codepoint = 0x2070;
+  ok $p.other-letter-digits($codepoint),
+     "$codepoint.fmt('0x%06x') in other-letter-digits set";
+
+  $codepoint = 0xD800;
+  nok $p.other-letter-digits($codepoint),
+     "$codepoint.fmt('0x%06x') not in other-letter-digits set";
+
 }, "Test PRECIS";
 
 #-------------------------------------------------------------------------------
