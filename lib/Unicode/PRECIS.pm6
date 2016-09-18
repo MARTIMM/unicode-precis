@@ -224,4 +224,11 @@ class PRECIS {
     $codepoint.uniprop-bool('Default_Ignorable_Code_Point')
     or ($codepoint (elem) $Unicode::PRECIS::Tables::NonCharCodepoint::set);
   }
+
+  #-----------------------------------------------------------------------------
+  # 9.14.  Spaces (N)
+  method space ( Int $codepoint --> Bool ) {
+
+    $codepoint.uniprop('General_Category') eq 'Zs';
+  }
 }

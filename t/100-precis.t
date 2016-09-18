@@ -146,6 +146,14 @@ subtest {
   nok $p.precis-ignorable-properties($codepoint),
      "$codepoint.fmt('0x%06x') not in ignorable set";
 
+  $codepoint = 0x00A0;
+  ok $p.space($codepoint),
+     "$codepoint.fmt('0x%06x') in spaces set";
+
+  $codepoint = 0x00A1;
+  nok $p.space($codepoint),
+     "$codepoint.fmt('0x%06x') not in spaces set";
+
 }, "Test PRECIS";
 
 #-------------------------------------------------------------------------------
