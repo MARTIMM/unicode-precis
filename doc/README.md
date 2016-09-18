@@ -8,7 +8,8 @@ needed to find the proper character classes.
 
 # Documentation
   * Unicode Data File Format ftp://unicode.org/Public/3.2-Update/UnicodeData-3.2.0.html
-  * Unicode Character Database http://www.unicode.org/reports/tr44/
+  * Unicode Normalization Forms \#15 http://unicode.org/reports/tr15/
+  * Unicode Character Database \#44 http://unicode.org/reports/tr44/
 
 
 
