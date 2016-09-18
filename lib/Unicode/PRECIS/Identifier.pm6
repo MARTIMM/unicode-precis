@@ -44,7 +44,7 @@ class PRECIS::Identifier is Unicode::PRECIS {
   }
 
   #-----------------------------------------------------------------------------
-  method calculate-value ( Int $codepoint --> Int ) {
+  method calculate-value ( Int $codepoint --> PropValue ) {
 
     if $codepoint (elem) $Unicode::PRECIS::exceptions {
       self.exceptions($codepoint);
@@ -54,22 +54,18 @@ class PRECIS::Identifier is Unicode::PRECIS {
       self.backwardcompatible($codepoint);
     }
 
-    elsif $codepoint (elem) $unassigned { $properties<UNASSIGNED>; }
-    elsif $codepoint (elem) $ascii7 { $properties<PVALID>; }
-    elsif $codepoint (elem) $joincontrol { $properties<CONTEXTJ>; }
-    elsif $codepoint (elem) $oldhanguljamo { $properties<DISALLOWED>; }
-
-    elsif $codepoint (elem) $precisignorableproperties {
-      $properties<PDisallowed>;
-    }
-
-    elsif $codepoint (elem) $controls { $properties<DISALLOWED>; }
-    elsif $codepoint (elem) $hascompat { $properties<IDISALLOWED>; }
-    elsif $codepoint (elem) $letterdigits { $properties<PVALID>; }
-    elsif $codepoint (elem) $otherletterdigits { $properties<ID_DIS>; }
-    elsif $codepoint (elem) $spaces { $properties<ID_DIS>; }
-    elsif $codepoint (elem) $symbols { $properties<ID_DIS>; }
-    elsif $codepoint (elem) $punctuation { $properties<ID_DIS>; }
+    elsif self.unassigned($codepoint) { UNASSIGNED; }
+    elsif self.ascii7($codepoint) { PVALID; }
+    elsif self.join-control($codepoint) { CONTEXTJ; }
+    elsif self.old-hangul-jamo($codepoint) { DISALLOWED; }
+    elsif self.precis-ignorable-properties($codepoint) { DISALLOWED; }
+    elsif self.control($codepoint) { DISALLOWED; }
+    elsif self.has-compat($codepoint) { ID-DIS; }
+    elsif self.letter-digits($codepoint) { PVALID; }
+    elsif self.other-letter-digits($codepoint) { ID-DIS; }
+    elsif self.space($codepoint) { ID-DIS; }
+    elsif self.symbol($codepoint) { ID-DIS; }
+    elsif self.punctuation($codepoint) { ID-DIS; }
     else { DISALLOWED; }
   }
 }

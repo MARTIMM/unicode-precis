@@ -3,6 +3,7 @@ use Test;
 
 use Unicode::PRECIS;
 use Unicode::PRECIS::Tables;
+use Unicode::PRECIS::Identifier;
 
 #-------------------------------------------------------------------------------
 subtest {
@@ -200,6 +201,15 @@ subtest {
      "$codepoint.fmt('0x%06x') not in other-letter-digits set";
 
 }, "Test PRECIS";
+
+
+#-------------------------------------------------------------------------------
+subtest {
+
+  my Unicode::PRECIS::Identifier $psid .= new;
+  is $psid.calculate-value(0x0050), PVALID, 'Valid id character';
+
+}, "Test Identifier";
 
 #-------------------------------------------------------------------------------
 done-testing;

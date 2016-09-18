@@ -101,20 +101,6 @@ class PRECIS {
   # rfc7564 9.11.  ASCII7 (K)
   our $ascii7 is export = Set.new: ( 0x0021..0x007E ).flat;
 
-
-#  my Set $Unassigned .= new();
-#  my Set $ASCII7 .= new();
-#  my Set $JoinControl .= new();
-#  my Set $OldHangulJamo .= new();
-  my Set $PrecisIgnorableProperties .= new();
-#  my Set $Controls .= new();
-  my Set $HasCompat .= new();
-#  my Set $LetterDigits .= new();
-  my Set $OtherLetterDigits .= new();
-  my Set $Spaces .= new();
-  my Set $Symbols .= new();
-  my Set $Punctuation .= new();
-
   #-----------------------------------------------------------------------------
   submethod BUILD ( ) {
 
@@ -157,6 +143,7 @@ class PRECIS {
   method behavioural-rule ( ) {
 
   }
+
 
   #-----------------------------------------------------------------------------
   # 9.1.  LetterDigits (A)
