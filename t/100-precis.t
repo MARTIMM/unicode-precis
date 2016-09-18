@@ -179,6 +179,14 @@ subtest {
   nok $p.punctuation($codepoint),
      "$codepoint.fmt('0x%06x') not in punctuation set";
 
+  $codepoint = 0x1e9a;
+  ok $p.has-compat($codepoint),
+     "$codepoint.fmt('0x%06x') in has-compat set";
+
+  $codepoint = 0x006a;
+  nok $p.has-compat($codepoint),
+     "$codepoint.fmt('0x%06x') not in has-compat set";
+
 }, "Test PRECIS";
 
 #-------------------------------------------------------------------------------

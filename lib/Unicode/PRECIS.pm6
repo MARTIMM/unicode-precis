@@ -247,4 +247,17 @@ class PRECIS {
     state $set = Set.new(<Pc Pd Ps Pe Pi Pf Po>);
     $codepoint.uniprop('General_Category') (elem) $set;
   }
+
+  #-----------------------------------------------------------------------------
+  # 9.17.  HasCompat (Q)
+  method has-compat ( Int $codepoint --> Bool ) {
+
+    my Bool $no-compat;
+    for Uni.new($codepoint).NFKC -> $cp {
+      $no-compat = ($codepoint == $cp);
+      last unless $no-compat;
+    }
+
+    not $no-compat;
+  }
 }
