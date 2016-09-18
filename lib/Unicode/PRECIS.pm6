@@ -231,4 +231,12 @@ class PRECIS {
 
     $codepoint.uniprop('General_Category') eq 'Zs';
   }
+
+  #-----------------------------------------------------------------------------
+  # Symbols (O)
+  method symbol ( Int $codepoint --> Bool ) {
+
+    state $set = Set.new(<Sm Sc Sk So>);
+    $codepoint.uniprop('General_Category') (elem) $set;
+  }
 }

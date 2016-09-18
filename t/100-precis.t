@@ -153,6 +153,19 @@ subtest {
   $codepoint = 0x00A1;
   nok $p.space($codepoint),
      "$codepoint.fmt('0x%06x') not in spaces set";
+     "$codepoint.fmt('0x%06x') not in ignorable set";
+
+  $codepoint = 0x02C2;
+  ok $p.symbol($codepoint),
+     "$codepoint.fmt('0x%06x') in symbol set";
+
+  $codepoint = 0x02DC;
+  ok $p.symbol($codepoint),
+     "$codepoint.fmt('0x%06x') in symbol set";
+
+  $codepoint = 0x037E;
+  nok $p.symbol($codepoint),
+     "$codepoint.fmt('0x%06x') not in symbol set";
 
 }, "Test PRECIS";
 
