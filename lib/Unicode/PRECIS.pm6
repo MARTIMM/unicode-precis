@@ -233,10 +233,18 @@ class PRECIS {
   }
 
   #-----------------------------------------------------------------------------
-  # Symbols (O)
+  # 9.15   Symbols (O)
   method symbol ( Int $codepoint --> Bool ) {
 
     state $set = Set.new(<Sm Sc Sk So>);
+    $codepoint.uniprop('General_Category') (elem) $set;
+  }
+
+  #-----------------------------------------------------------------------------
+  # 9.16.  Punctuation (P)
+  method punctuation ( Int $codepoint --> Bool ) {
+
+    state $set = Set.new(<Pc Pd Ps Pe Pi Pf Po>);
     $codepoint.uniprop('General_Category') (elem) $set;
   }
 }

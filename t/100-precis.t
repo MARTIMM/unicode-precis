@@ -167,6 +167,18 @@ subtest {
   nok $p.symbol($codepoint),
      "$codepoint.fmt('0x%06x') not in symbol set";
 
+  $codepoint = 0x037E;
+  ok $p.punctuation($codepoint),
+     "$codepoint.fmt('0x%06x') in punctuation set";
+
+  $codepoint = 0x0F3B;
+  ok $p.punctuation($codepoint),
+     "$codepoint.fmt('0x%06x') in punctuation set";
+
+  $codepoint = 0x0F3E;
+  nok $p.punctuation($codepoint),
+     "$codepoint.fmt('0x%06x') not in punctuation set";
+
 }, "Test PRECIS";
 
 #-------------------------------------------------------------------------------
