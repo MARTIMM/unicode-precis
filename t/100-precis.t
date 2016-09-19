@@ -3,7 +3,8 @@ use Test;
 
 use Unicode::PRECIS;
 use Unicode::PRECIS::Tables;
-use Unicode::PRECIS::Identifier;
+use Unicode::PRECIS::Identifier::UsernameCaseMapped;
+use Unicode::PRECIS::Identifier::UsernameCasePreserved;
 
 #-------------------------------------------------------------------------------
 subtest {
@@ -154,7 +155,6 @@ subtest {
   $codepoint = 0x00A1;
   nok $p.space($codepoint),
      "$codepoint.fmt('0x%06x') not in spaces set";
-     "$codepoint.fmt('0x%06x') not in ignorable set";
 
   $codepoint = 0x02C2;
   ok $p.symbol($codepoint),
@@ -206,8 +206,13 @@ subtest {
 #-------------------------------------------------------------------------------
 subtest {
 
-  my Unicode::PRECIS::Identifier $psid .= new;
+  my Unicode::PRECIS::Identifier::UsernameCaseMapped $psid .= new;
   is $psid.calculate-value(0x0050), PVALID, 'Valid id character';
+  is $psid.calculate-value(0x00B4), ID-DIS, 'Disallowed id character';
+  is $psid.calculate-value(0x200C), CONTEXTJ, 'Allowed id character in context';
+
+  my TestValue $tv = $psid.prepare('Marcel');
+  is $tv ~~ Str and $tv eq 'marcel', "test username 'Marcel'";
 
 }, "Test Identifier";
 

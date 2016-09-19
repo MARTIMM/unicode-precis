@@ -6,12 +6,29 @@ use Unicode::PRECIS:Identifier;
 #-------------------------------------------------------------------------------
 unit package Unicode;
 
-class PRECIS::Identifier::UsernameCasePreserved is Unicode::PRECIS:Identifier {
+class PRECIS::Identifier::UsernameCasePreserved {
+  also is Unicode::PRECIS:Identifier;
 
   #-----------------------------------------------------------------------------
   submethod BUILD ( ) {
-  
+
   }
 
+  #-----------------------------------------------------------------------------
+  # rfc7613 3.3.1.  Preparation
+  method prepare ( Str $s --> Bool ) {
 
+  }
+
+  #-----------------------------------------------------------------------------
+  # rfc7613 3.3.2.  Enforcement
+  method enforce ( Str $s --> Bool ) {
+
+  }
+
+  #-----------------------------------------------------------------------------
+  # rfc7613 3.3.3.  Comparison
+  method compare ( Str $s1, Str $s2 --> Bool ) {
+
+  }
 }

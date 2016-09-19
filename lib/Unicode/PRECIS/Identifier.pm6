@@ -21,31 +21,9 @@ class PRECIS::Identifier is Unicode::PRECIS {
   }
 
   #-----------------------------------------------------------------------------
-  # Preparation entails only ensuring that the characters in an individual string
-  # are allowed by the underlying PRECIS string class.
-  method prepare ( Str $s --> Bool ) {
-
-  }
-
-  #-----------------------------------------------------------------------------
-  # Enforcement entails applying all of the rules specified for a particular
-  # string class or profile thereof to an individual string, for the purpose of
-  # determining if the string can be used in a given protocol slot.
-  method enforce ( Str $s --> Bool ) {
-
-  }
-
-  #-----------------------------------------------------------------------------
-  # Comparison entails applying all of the rules specified for a particular
-  # string class or profile thereof to two separate strings, for the purpose of
-  # determining if the two strings are equivalent.
-  method compare ( Str $s1, Str $s2 --> Bool ) {
-
-  }
-
-  #-----------------------------------------------------------------------------
   method calculate-value ( Int $codepoint --> PropValue ) {
 
+say "CP: $codepoint";
     if $codepoint (elem) $Unicode::PRECIS::exceptions {
       self.exceptions($codepoint);
     }

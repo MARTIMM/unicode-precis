@@ -9,6 +9,8 @@ unit package Unicode;
 
 class PRECIS {
 
+  subset TestValue is export where $_ ~~ any( Str, Bool);
+
 #  enum Behavioural < Valid ContextJ ContextO Disallowed Unassigned>;
   enum PropValue is export <
     PVALID ID-PVAL FREE-PVAL CONTEXTJ CONTEXTO
@@ -106,6 +108,53 @@ class PRECIS {
 
   }
 
+  #-----------------------------------------------------------------------------
+  # rfc7654 3.  Preparation, Enforcement, and Comparison
+  # Preparation entails only ensuring that the characters in an individual
+  # string are allowed by the underlying PRECIS string class.
+  #
+  # Enforcement entails applying all of the rules specified for a particular
+  # string class or profile thereof to an individual string, for the purpose of
+  # determining if the string can be used in a given protocol slot.
+  #
+  # Comparison entails applying all of the rules specified for a particular
+  # string class or profile thereof to two separate strings, for the purpose of
+  # determining if the two strings are equivalent.
+  #-----------------------------------------------------------------------------
+  method prepare ( Str $s --> Bool ) {
+    ...
+  }
+
+  #-----------------------------------------------------------------------------
+  method enforce ( Str $s --> Bool ) {
+    ...
+  }
+
+  #-----------------------------------------------------------------------------
+  method compare ( Str $s1, Str $s2 --> Bool ) {
+    ...
+  }
+
+  #-----------------------------------------------------------------------------
+  method test-string ( Str $s --> Bool ) {
+
+    my Bool $string-ok = True;
+    for $s.NFC -> $codepoint {
+      my PropValue $result = self.calculate-value($codepoint);
+
+      if $result ~~ any(<CONTEXTJ CONTEXTO DISALLOWED ID-DIS UNASSIGNED>) {
+        $string-ok = False;
+        last;
+      }
+    }
+
+    $string-ok;
+  }
+
+  #-----------------------------------------------------------------------------
+  method calculate-value ( Int $codepoint --> PropValue ) {
+    ...
+  }
 
   #-----------------------------------------------------------------------------
   # 7.  Order of Operations
@@ -115,8 +164,18 @@ class PRECIS {
   #   width-map-rule, additional-map-rule, case-map-rule, normalization-rule,
   #   directionality-rule and behavioural-rule.
   #
-  method width-mapping-rule ( ) {
+  method width-mapping-rule ( Str $s --> Str ) {
 
+    my Str $mapped-s = '';
+    for $s.NFC -> $codepoint {
+      if $codepoint.uniname ~~ m/ 'FULLWIDTH' | 'HALFWIDTH' / {
+        $mapped-s ~= $codepoint.NFKC.Str;
+      }
+
+      else {
+        Uni.new($codepoint).Str;
+      }
+    }
   }
 
   #-----------------------------------------------------------------------------
@@ -125,8 +184,9 @@ class PRECIS {
   }
 
   #-----------------------------------------------------------------------------
-  method case-mapping-rule ( ) {
+  method case-mapping-rule ( Str $s --> Str ) {
 
+    $s.fc;
   }
 
   #-----------------------------------------------------------------------------
@@ -135,7 +195,7 @@ class PRECIS {
   }
 
   #-----------------------------------------------------------------------------
-  method directionality-rule ( ) {
+  method directionality-rule ( Str $s --> Str  ) {
 
   }
 
