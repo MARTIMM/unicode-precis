@@ -19,5 +19,5 @@
     "Unicode::PRECIS::Tables": "lib/Unicode/PRECIS/Tables.pm6"
   },
   "source-url": "git://github.com/MARTIMM/unicode-stringprep.git",
-  "version": "v0.2.0.1"
+  "version": "v0.2.0.2"
 }
