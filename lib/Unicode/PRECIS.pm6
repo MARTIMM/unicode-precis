@@ -173,9 +173,11 @@ class PRECIS {
       }
 
       else {
-        Uni.new($codepoint).Str;
+        $mapped-s ~= Uni.new($codepoint).Str;
       }
     }
+
+    $mapped-s;
   }
 
   #-----------------------------------------------------------------------------
