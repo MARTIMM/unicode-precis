@@ -212,7 +212,7 @@ subtest {
   is $psid.calculate-value(0x200C), CONTEXTJ, 'Allowed id character in context';
 
   my TestValue $tv = $psid.prepare('Marcel');
-  is $tv ~~ Str and $tv eq 'marcel', "test username 'Marcel'";
+  ok $tv ~~ Str and $tv eq 'marcel', "test username 'Marcel'";
 
 }, "Test Identifier";
 
