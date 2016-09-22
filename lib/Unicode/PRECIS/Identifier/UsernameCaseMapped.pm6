@@ -1,5 +1,6 @@
 use v6.c;
-use Unicode::PRECIS:Identifier;
+use Unicode::PRECIS;
+use Unicode::PRECIS::Identifier;
 
 #-------------------------------------------------------------------------------
 # rfc7613 7.1.  UsernameCaseMapped Profile
@@ -26,13 +27,8 @@ use Unicode::PRECIS:Identifier;
 #-------------------------------------------------------------------------------
 unit package Unicode;
 
-class PRECIS::Identifier::UsernameCaseMapped is Unicode::PRECIS:Identifier {
-#  also is Unicode::PRECIS:Identifier;
-
-  #-----------------------------------------------------------------------------
-  submethod BUILD ( ) {
-  
-  }
+class PRECIS::Identifier::UsernameCaseMapped {
+  also is Unicode::PRECIS::Identifier;
 
   #-----------------------------------------------------------------------------
   # rfc7613 3.2.1.  Preparation
@@ -67,7 +63,7 @@ class PRECIS::Identifier::UsernameCaseMapped is Unicode::PRECIS:Identifier {
   #-----------------------------------------------------------------------------
   # Mapping and other rules
   method !map-string( Str $s is copy --> Str ) {
-  
+
     $s = self.width-mapping-rule($s);
     $s = self.case-mapping-rule($s);
   }

@@ -1,16 +1,11 @@
 use v6.c;
-use Unicode::PRECIS:FreeForm;
+use Unicode::PRECIS::FreeForm;
 
 #-------------------------------------------------------------------------------
 unit package Unicode;
 
-class PRECIS::Identifier::OpaqueString {
-  also is Unicode::PRECIS:FreeForm;
-
-  #-----------------------------------------------------------------------------
-  submethod BUILD ( ) {
-  
-  }
+class PRECIS::FreeForm::OpaqueString {
+  also is Unicode::PRECIS::FreeForm;
 
   #-----------------------------------------------------------------------------
   # rfc7613 4.2.1.  Preparation

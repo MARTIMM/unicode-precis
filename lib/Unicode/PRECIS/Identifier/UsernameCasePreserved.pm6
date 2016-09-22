@@ -1,5 +1,5 @@
 use v6.c;
-use Unicode::PRECIS:Identifier;
+use Unicode::PRECIS::Identifier;
 
 #-------------------------------------------------------------------------------
 # Texts are also taken directly from rfc7564
@@ -7,12 +7,7 @@ use Unicode::PRECIS:Identifier;
 unit package Unicode;
 
 class PRECIS::Identifier::UsernameCasePreserved {
-  also is Unicode::PRECIS:Identifier;
-
-  #-----------------------------------------------------------------------------
-  submethod BUILD ( ) {
-
-  }
+  also is Unicode::PRECIS::Identifier;
 
   #-----------------------------------------------------------------------------
   # rfc7613 3.3.1.  Preparation

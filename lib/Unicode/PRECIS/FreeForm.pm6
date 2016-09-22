@@ -18,11 +18,6 @@ unit package Unicode;
 class PRECIS::FreeForm is Unicode::PRECIS {
 
   #-----------------------------------------------------------------------------
-  submethod BUILD ( ) {
-
-  }
-
-  #-----------------------------------------------------------------------------
   method calculate-value ( Int $codepoint --> PropValue ) {
 
     if $codepoint (elem) $exceptions { self.exceptions($codepoint); }

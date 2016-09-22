@@ -16,14 +16,8 @@ unit package Unicode;
 class PRECIS::Identifier is Unicode::PRECIS {
 
   #-----------------------------------------------------------------------------
-  submethod BUILD ( ) {
-
-  }
-
-  #-----------------------------------------------------------------------------
   method calculate-value ( Int $codepoint --> PropValue ) {
 
-say "CP: $codepoint";
     if $codepoint (elem) $Unicode::PRECIS::exceptions {
       self.exceptions($codepoint);
     }
