@@ -120,6 +120,8 @@ class PRECIS {
   # Comparison entails applying all of the rules specified for a particular
   # string class or profile thereof to two separate strings, for the purpose of
   # determining if the two strings are equivalent.
+  #
+  # Methods must be implemented in sub classes
   #-----------------------------------------------------------------------------
   method prepare ( Str $s --> Bool ) {
     ...
@@ -152,17 +154,26 @@ class PRECIS {
   }
 
   #-----------------------------------------------------------------------------
+  # Method must be implemented in sub classes
   method calculate-value ( Int $codepoint --> PropValue ) {
     ...
   }
 
   #-----------------------------------------------------------------------------
-  # 7.  Order of Operations
+  # rfc7564 7.  Order of Operations
   #
   #   To ensure proper comparison, the rules specified for a particular
   #   string class or profile MUST be applied in the following order:
   #   width-map-rule, additional-map-rule, case-map-rule, normalization-rule,
   #   directionality-rule and behavioural-rule.
+  #
+  # 1.  Width Mapping Rule
+  # 2.  Additional Mapping Rule
+  # 3.  Case Mapping Rule
+  # 4.  Normalization Rule
+  # 5.  Directionality Rule
+  # 6.  Behavioral rules for determining whether a code point is valid,
+  #     allowed under a contextual rule, disallowed, or unassigned
   #
   method width-mapping-rule ( Str $s --> Str ) {
 
@@ -197,6 +208,7 @@ class PRECIS {
   }
 
   #-----------------------------------------------------------------------------
+  # rfc5893 2.  The Bidi Rule
   method directionality-rule ( Str $s --> Str  ) {
 
   }
