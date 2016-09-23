@@ -10,3 +10,4 @@ generate-module --mod-name='NonCharCodepoint' --cat='Noncharacter_Code_Point' PR
 
 #generate-module --mod-name='Unassigned' --cat='Cn' DGC
 
+generate-module --mod-name='Bidi' --cat='*' --table BDI
