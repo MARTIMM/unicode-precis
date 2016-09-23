@@ -17,55 +17,29 @@ subtest {
   ok 0xFDD0 (elem) $Unicode::PRECIS::Tables::NonCharCodepoint::set,
      '0x5FFFE in NonCharCodepoint set';
 
-  ok 
-#`{{
-  ok 0x00C0 (elem) $Unicode::PRECIS::Tables::GeneralCatagory::set,
-     '0x00C0 in GeneralCatagory set';
-
-  for "abc\x[0398]\x[30c7]\x[17010]\x[17820]".NFC -> $codepoint {
-    ok $codepoint (elem) $Unicode::PRECIS::Tables::GeneralCatagory::set,
-      Uni.new($codepoint).Str() ~ " ($codepoint.fmt('0x%04x')) in general set";
-  }
-
-  ok 0x200C (elem) $Unicode::PRECIS::Tables::JoinControl::set,
-     '0x200C in JoinControl set';
-
-  ok 0x114E (elem) $Unicode::PRECIS::Tables::OldHangulJamo::set,
-     '0x114E in OldHangulJamo set';
-
-  ok 0x11A0 (elem) $Unicode::PRECIS::Tables::OldHangulJamo::set,
-     '0x11A0 in OldHangulJamo set';
-
-  ok 0x11A0 (elem) $Unicode::PRECIS::Tables::OldHangulJamo::set,
-     '0x11A0 in OldHangulJamo set';
-
-  ok 0x5FFFE (elem) $Unicode::PRECIS::Tables::NonCharCodepoint::set,
-     '0x5FFFE in NonCharCodepoint set';
-
-  ok 0x0BE5 (elem) $Unicode::PRECIS::Tables::Unassigned::set,
-     '0x0BE5 in Unassigned set';
-
-  ok 0x10CF4 (elem) $Unicode::PRECIS::Tables::Unassigned::set,
-     '0x10CF4 in Unassigned set';
-
-  ok 0x001C (elem) $Unicode::PRECIS::Tables::Controls::set,
-     '0x001C in Controls set';
-
-  ok 0x008A (elem) $Unicode::PRECIS::Tables::Controls::set,
-     '0x008A in Controls set';
-}}
-
   ok 0x0064 (elem) $ascii7, '0x0064 in Ascii7 set';
-
-}, 'Test tables';
-
-#-------------------------------------------------------------------------------
-subtest {
 
   is $exceptions{0x00DF}, 'PVALID', 'exceptions check for PVALID';
   is $exceptions{0x0660}, 'CONTEXTO', 'exceptions check for CONTEXTO';
 
-}, 'Test exceptions';
+  ok 0xFF67 (elem) $Unicode::PRECIS::Tables::Bidi::set, '0xFF67 in bidi set';
+  ok $Unicode::PRECIS::Tables::Bidi::table<0xFF67>:!exists, '0xFF67 not in table';
+
+  my @a = grep / '..' /, $Unicode::PRECIS::Tables::Bidi::table.keys;
+  my Bool $found = False;
+  my $property;
+  for @a -> $cp-range {
+    if 0xFF67 (elem) $Unicode::PRECIS::Tables::Bidi::table{$cp-range}<codepoint> {
+      $found = True;
+      $property = $Unicode::PRECIS::Tables::Bidi::table{$cp-range}<property>;
+      last;
+    }
+  }
+
+  ok $found, 'Found 0xFF67 in table';
+  is $property, 'L', 'Property of 0xFF67 is L';
+
+}, 'Test tables';
 
 #-------------------------------------------------------------------------------
 subtest {
@@ -218,6 +192,7 @@ subtest {
 
 #-------------------------------------------------------------------------------
 done-testing;
+
 
 
 #-------------------------------------------------------------------------------
