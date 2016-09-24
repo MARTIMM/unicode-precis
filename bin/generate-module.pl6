@@ -241,31 +241,14 @@ sub ucd-db ( List :cat($ucd-cat) --> Hash ) {
 #-------------------------------------------------------------------------------
 sub prl-db ( List :cat($prl-cat) --> Hash ) {
 
-  my Map $prop-names .= new( < codepoint property >.kv );
-  my Hash $prop-data = {};
+  my Map $prl-names .= new( < codepoint property >.kv );
+  my Hash $prl-data = {};
 
   for 'PropList.txt'.IO.lines -> $line is copy {
-
-    # Comments and empty lines are removed
-    $line ~~ s/ \s* '#' .* $//;
-    next if $line ~~ m/^ \h* $/;
-
-    # Split into the several fields
-    my Array $prop-entry = [$line.split(/ \s* ';' \s* /)];
-    my Str $catagory = $prop-entry[1];
-
-    if $prl-cat[0] eq '*' or $catagory ~~ any (@$prl-cat) {
-      for ^ $prop-names.elems -> $ui {
-        my $entry = "0x$prop-entry[0]";
-        $entry ~~ s/ '..' /..0x/;
-
-        $prop-data{$entry}{$prop-names{$ui}} =
-          $prop-entry[$ui] if ? $prop-entry[$ui];
-      }
-    }
+    extract-db( $prl-cat, $line, $prl-names, $prl-data);
   }
-  
-  $prop-data;
+
+  $prl-data;
 }
 
 #-------------------------------------------------------------------------------
@@ -275,24 +258,7 @@ sub hst-db ( List :cat($hst-cat) --> Hash ) {
   my Hash $hst-data = {};
 
   for 'HangulSyllableType.txt'.IO.lines -> $line is copy {
-
-    # Comments and empty lines are removed
-    $line ~~ s/ \s* '#' .* $//;
-    next if $line ~~ m/^ \h* $/;
-
-    # Split into the several fields
-    my Array $hst-entry = [$line.split(/ \s* ';' \s* /)];
-    my Str $catagory = $hst-entry[1];
-
-    if $hst-cat[0] eq '*' or $catagory ~~ any (@$hst-cat) {
-      for ^ $hst-names.elems -> $ui {
-        my $entry = "0x$hst-entry[0]";
-        $entry ~~ s/ '..' /..0x/;
-
-        $hst-data{$entry}{$hst-names{$ui}} =
-          $hst-entry[$ui] if ? $hst-entry[$ui];
-      }
-    }
+    extract-db( $hst-cat, $line, $hst-names, $hst-data);
   }
 
   $hst-data;
@@ -305,24 +271,7 @@ sub dgc-db ( List :cat($dgc-cat) --> Hash ) {
   my Hash $dgc-data = {};
 
   for 'extracted/DerivedGeneralCategory.txt'.IO.lines -> $line is copy {
-
-    # Comments and empty lines are removed
-    $line ~~ s/ \s* '#' .* $//;
-    next if $line ~~ m/^ \h* $/;
-
-    # Split into the several fields
-    my Array $dgc-entry = [$line.split(/ \s* ';' \s* /)];
-    my Str $catagory = $dgc-entry[1];
-
-    if $dgc-cat[0] eq '*' or $catagory ~~ any (@$dgc-cat) {
-      for ^ $dgc-names.elems -> $ui {
-        my $entry = "0x$dgc-entry[0]";
-        $entry ~~ s/ '..' /..0x/;
-
-        $dgc-data{$entry}{$dgc-names{$ui}} =
-          $dgc-entry[$ui] if ? $dgc-entry[$ui];
-      }
-    }
+    extract-db( $dgc-cat, $line, $dgc-names, $dgc-data);
   }
 
   $dgc-data;
@@ -336,25 +285,6 @@ sub bdi-db ( List :cat($bdi-cat) --> Hash ) {
 
   for 'extracted/DerivedBidiClass.txt'.IO.lines -> $line {
     extract-db( $bdi-cat, $line, $bdi-names, $bdi-data);
-#`{{
-    # Comments and empty lines are removed
-    $line ~~ s/ \s* '#' .* $//;
-    next if $line ~~ m/^ \h* $/;
-
-    # Split into the several fields
-    my Array $bdi-entry = [$line.split(/ \s* ';' \s* /)];
-    my Str $catagory = $bdi-entry[1];
-
-    if $bdi-cat[0] eq '*' or $catagory ~~ any (@$bdi-cat) {
-      for ^ $bdi-names.elems -> $ui {
-        my $entry = "0x$bdi-entry[0]";
-        $entry ~~ s/ '..' /..0x/;
-
-        $bdi-data{$entry}{ $bdi-names{$ui} } =
-          $bdi-entry[$ui] if ? $bdi-entry[$ui];
-      }
-    }
-}}
   }
 
   $bdi-data;
@@ -407,11 +337,11 @@ sub generate-module ( Hash :$data, --> Nil ) {
 
     $class-text ~~ s/'### NEW DATA ###'/$new-class-text/;
   }
-  
+
   else {
     $class-text = qq:to/HEADER/;
       use v6.c;
-      
+
       # Place file Tables.pm6 in directory ./Unicode/PRECIS
       # Load with 'use Unicode::PRECIS::Tables'
 
