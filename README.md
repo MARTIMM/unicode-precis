@@ -9,7 +9,7 @@ Many tests are based on the Unicode® database as well as the unicode tools from
 ```
 ```
 
-### RFC's
+### RFC's and other sources
 
 I've started to study rfc4013 for SASLprep. Then recognized it was a profile based on Stringprep specified in rfc3454. Both are obsoleted by rfc7613 and rfc7564 resp because they are tied to Unicode version 3.2. The newer rfc's are specified to be free of any version.
 
@@ -22,12 +22,27 @@ I've started to study rfc4013 for SASLprep. Then recognized it was a profile bas
 Further needed information from
 * rfc5892 - The Unicode Code Points and Internationalized Domain Names for Applications (IDNA)
 
+Several files are found at the Unicode® Character Database to generate the tables needed to find the proper character classes.
+
+* [UnicodeData.txt]( http://www.unicode.org/Public/9.0.0/ucd/UnicodeData.txt)
+* [Whole zip file UCD.zip]( http://www.unicode.org/Public/9.0.0/ucd/UCD.zip)
+
+# Documentation
+  * [Unicode Data File Format]( ftp://unicode.org/Public/3.2-Update/UnicodeData-3.2.0.html)
+  * [Unicode Normalization Forms \#15](http://unicode.org/reports/tr15/)
+  * [Unicode Character Database \#44](http://unicode.org/reports/tr44/)
+  * [East Asian Width \#11](http://unicode.org/reports/tr11/)
+  * [Unicode Bidirectional Algorithm \#9](http://unicode.org/reports/tr9/)
+
 ### Perl 6
 
 NOTE: At the moment jvm does not yet support several unicode functions such as
 unival, uniprop etc. Moarvm does support them. I'll try to emulate them but it isn't clear if it is fast enaugh.
 
-Perl 6 uses graphemes as a base for the Str string type. These are the visible entities which show as a single symbol and are counted as such with the ```Str.chars``` method. From this, normal forms can be generated using the string methods NFC, NFD, NFKC and NFKD. Furthermore the strings can be encoded to utf-8.
+Perl 6 uses graphemes as a base for the Str string type. These are the visible entities which show as a single symbol and are counted as such with the ```Str.chars``` method. From this, normal forms can be generated using the string methods uniname, uninames, unival, univals, NFC, NFD, NFKC and NFKD. Furthermore the strings can be encoded to utf-8.
+
+Perl6 still works on version 8.0.0 of UCD but will e upgraded soon.
+Not avaliable in jvm yet are uniprop, uniprop-bool, uniprop-int, uniprop-str
 
 ## Implementation track
 
@@ -48,7 +63,7 @@ This project is tested with latest Rakudo built on MoarVM implementing Perl v6.c
 
 ## Bugs, known limitations and todo
 * Try to use tables when uniprop is not available
-* Try to use the highest possible unicode version when using tables. At the time of writing this 9.0.0.
+* Try to use the highest possible unicode version when using tables. At the time of writing this is version 9.0.0.
 
 ## Changelog
 
