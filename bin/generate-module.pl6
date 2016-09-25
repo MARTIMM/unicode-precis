@@ -121,11 +121,7 @@ sub USAGE ( ) {
 
   Usage:
 
-    Search through the UnicodeData.txt file
-    > generate-module.pl6 --mod-name=<Str> --cat=<List> [--table] \
-      [<ucd-dir> ='9.0'] UCD
-
-    Search through other unicode data files
+    Search through unicode data files
     > generate-module.pl6 --mod-name=<Str> --cat=<List> [--table]\
       [--fields] [<ucd-dir> ='9.0'] <filename-path>
 
