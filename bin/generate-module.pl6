@@ -3,70 +3,23 @@
 use v6.c;
 
 #-------------------------------------------------------------------------------
-# http://www.unicode.org/reports/tr44/
-#   4.2.3 Code Point Ranges in UnicodeData.txt
-#   4.2.4 Comments
-#
-
-#-------------------------------------------------------------------------------
-#say "A: ", @*ARGS.perl;
-
 my Str $module-name;
 my Str $unicode-db;
 my Bool $table-too;
+my Int $compare-field;
 
 # Search through UnicodeData.txt
-multi sub MAIN ( 'UCD', Str $ucd-dir = '9.0', Str :$mod-name!, Str :$cat!, Bool :$table = False ) {
+multi sub MAIN (
+  'UCD',
+  Str $ucd-dir = '9.0',
+  Str :$mod-name!, Str :$cat = '*',
+  Bool :$table = False
+) {
 
   $module-name = $mod-name;
   $unicode-db = $ucd-dir;
   $table-too = $table;
-
-  the-work( :$cat, :worker(&ucd-db));
-}
-
-# Search through PropList.txt
-multi sub MAIN ( 'PRL', Str $ucd-dir = '9.0', Str :$mod-name!, Str :$cat!, Bool :$table = False ) {
-
-  $module-name = $mod-name;
-  $unicode-db = $ucd-dir;
-  $table-too = $table;
-
-  the-work( :$cat, :worker(&prl-db));
-}
-
-# Search through HangulSyllableType.txt
-multi sub MAIN ( 'HST', Str $ucd-dir = '9.0', Str :$mod-name!, Str :$cat!, Bool :$table = False ) {
-
-  $module-name = $mod-name;
-  $unicode-db = $ucd-dir;
-  $table-too = $table;
-
-  the-work( :$cat, :worker(&hst-db));
-}
-
-# Search through extracted/DerivedGeneralCategory.txt
-multi sub MAIN ( 'DGC', Str $ucd-dir = '9.0', Str :$mod-name!, Str :$cat!, Bool :$table = False ) {
-
-  $module-name = $mod-name;
-  $unicode-db = $ucd-dir;
-  $table-too = $table;
-
-  the-work( :$cat, :worker(&dgc-db));
-}
-
-# Search through extracted/DerivedBidiClass.txt
-multi sub MAIN ( 'BDI', Str $ucd-dir = '9.0', Str :$mod-name!, Str :$cat!, Bool :$table = False ) {
-
-  $module-name = $mod-name;
-  $unicode-db = $ucd-dir;
-  $table-too = $table;
-
-  the-work( :$cat, :worker(&bdi-db));
-}
-
-#-------------------------------------------------------------------------------
-sub the-work ( Str :$cat, Callable :$worker ) {
+  $compare-field = 2;
 
   die "Directory $unicode-db not found" unless $unicode-db.IO ~~ :d;
 
@@ -75,7 +28,43 @@ sub the-work ( Str :$cat, Callable :$worker ) {
   chdir $unicode-db;
 
   # Go to unicode data dir
-  my Hash $data = &$worker(:cat($cat.split(/\h* ',' \h*/)));
+  my Hash $data = ucd-db(:cat($cat.split(/\h* ',' \h*/)));
+
+  # Return to original dir
+  chdir $current-dir;
+
+  # Generate module
+  generate-module(:$data);
+}
+
+# Search through file given by argument. Must a be a file with codepoint(range)
+# first
+multi sub MAIN (
+  Str $filename, Str $ucd-dir = '9.0', Str :$mod-name!,
+  Str :$cat is copy = '*', Int :$cat-field = 1, Str :$fields = '',
+  Bool :$table = False
+) {
+
+  $module-name = $mod-name;
+  $unicode-db = $ucd-dir;
+  $table-too = $table;
+  $compare-field = $cat-field;
+
+  die "Directory $unicode-db not found" unless $unicode-db.IO ~~ :d;
+
+  # Go to unicode data dir
+  my $current-dir = $*CWD.Str;
+  chdir $unicode-db;
+
+  # Go to unicode data dir
+  my Map $names .= new( $fields.split(/\h* ',' \h*/).kv );
+say 'Names: ', @$names;
+  my Hash $data = {};
+
+  die "File $filename not found" unless $$filename.IO ~~ :r;
+  for $filename.IO.lines -> $line {
+    extract-db( $cat.split(/\h* ',' \h*/), $line, $names, $data);
+  }
 
   # Return to original dir
   chdir $current-dir;
@@ -94,19 +83,12 @@ sub USAGE ( ) {
   Usage:
 
     Search through the UnicodeData.txt file
-    > generate-module.pl6 --mod-name=<Str> --cat=<List> [--table] [<ucd-dir> ='9.0'] UCD
+    > generate-module.pl6 --mod-name=<Str> --cat=<List> \
+      [--table] [<ucd-dir> ='9.0'] UCD
 
-    Search through the PropList.txt file
-    > generate-module.pl6 --mod-name=<Str> --cat=<List> [--table] [<ucd-dir> ='9.0'] PRL
-
-    Search through the HangulSyllableType.txt file
-    > generate-module.pl6 --mod-name=<Str> --cat=<List> [--table] [<ucd-dir> ='9.0'] HST
-
-    Search through the extracted/DerivedGeneralCategory.txt file
-    > generate-module.pl6 --mod-name=<Str> --cat=<List> [--table] [<ucd-dir> ='9.0'] DGC
-
-    Search through the extracted/DerivedBidiClass.txt file
-    > generate-module.pl6 --mod-name=<Str> --cat=<List> [--table] [<ucd-dir> ='9.0'] DGC
+    Search through other unicode data files
+    > generate-module.pl6 --mod-name=<Str> --cat=<List> [--table]\
+      [--fields] [<ucd-dir> ='9.0'] <relative filename path>
 
   Arguments
     ucd-dir             Directory where unicode data is to be found. Default
@@ -138,15 +120,7 @@ sub USAGE ( ) {
                         http://unicode.org/Public/9.0.0/ucd/UnicodeData.txt.
                         This file must be found in the current directory
 
-    When PRL (Search through PropList.txt)
-    --cat               This is a list of comma separated strings just as above
-                        but has other catagory names.
-
-    When HST (Search through HangulSyllableType.txt)
-    --cat               This is a list of comma separated strings just as above
-                        but has other catagory names.
-
-    When DGC (Search through extracted/DerivedGeneralCategory.txt)
+    When <filename> (Search through other unicode files)
     --cat               This is a list of comma separated strings just as above
                         but has other catagory names.
 
@@ -198,10 +172,10 @@ sub ucd-db ( List :cat($ucd-cat) --> Hash ) {
 
     # Split into the several fields
     my Array $unicode-data-entry = [$line.split(';')];
-    my Str $catagory = $unicode-data-entry[2];
+    my Str $category = $unicode-data-entry[2];
 
     # Check for the requested catagories
-    if $ucd-cat[0] eq '*' or $unicode-data-entry[2] ~~ any(@$ucd-cat) {
+    if $ucd-cat[0] eq '*' or $category ~~ any(@$ucd-cat) {
 
       # Check for range start and save codepoint of start
       if !$first-of-range-found and $unicode-data-entry[1] ~~ m/ 'First>' / {
@@ -239,74 +213,19 @@ sub ucd-db ( List :cat($ucd-cat) --> Hash ) {
 };
 
 #-------------------------------------------------------------------------------
-sub prl-db ( List :cat($prl-cat) --> Hash ) {
-
-  my Map $prl-names .= new( < codepoint property >.kv );
-  my Hash $prl-data = {};
-
-  for 'PropList.txt'.IO.lines -> $line is copy {
-    extract-db( $prl-cat, $line, $prl-names, $prl-data);
-  }
-
-  $prl-data;
-}
-
-#-------------------------------------------------------------------------------
-sub hst-db ( List :cat($hst-cat) --> Hash ) {
-
-  my Map $hst-names .= new( < codepoint property >.kv );
-  my Hash $hst-data = {};
-
-  for 'HangulSyllableType.txt'.IO.lines -> $line is copy {
-    extract-db( $hst-cat, $line, $hst-names, $hst-data);
-  }
-
-  $hst-data;
-}
-
-#-------------------------------------------------------------------------------
-sub dgc-db ( List :cat($dgc-cat) --> Hash ) {
-
-  my Map $dgc-names .= new( < codepoint property >.kv );
-  my Hash $dgc-data = {};
-
-  for 'extracted/DerivedGeneralCategory.txt'.IO.lines -> $line is copy {
-    extract-db( $dgc-cat, $line, $dgc-names, $dgc-data);
-  }
-
-  $dgc-data;
-}
-
-#-------------------------------------------------------------------------------
-sub bdi-db ( List :cat($bdi-cat) --> Hash ) {
-
-  my Map $bdi-names .= new( < codepoint property >.kv );
-  my Hash $bdi-data = {};
-
-  for 'extracted/DerivedBidiClass.txt'.IO.lines -> $line {
-    extract-db( $bdi-cat, $line, $bdi-names, $bdi-data);
-  }
-
-  $bdi-data;
-}
-
-#-------------------------------------------------------------------------------
 sub extract-db ( List $cat, Str $line is copy, Map $names, Hash $data ) {
 
-#  my Map $bdi-names .= new( < codepoint property >.kv );
-#  my Hash $bdi-data = {};
+  # Comments and empty lines are removed
+  $line ~~ s/ \s* '#' .* $//;
+  if $line !~~ m/^ \h* $/ {
 
-#  for 'extracted/DerivedBidiClass.txt'.IO.lines -> $line is copy {
+    # Split into the several fields
+    my Array $entry = [$line.split(/ \s* ';' \s* /)];
+    my Str $category = $entry[$compare-field];
 
-    # Comments and empty lines are removed
-    $line ~~ s/ \s* '#' .* $//;
-    if $line !~~ m/^ \h* $/ {
-
-      # Split into the several fields
-      my Array $entry = [$line.split(/ \s* ';' \s* /)];
-      my Str $catagory = $entry[1];
-
-      if $cat[0] eq '*' or $catagory ~~ any (@$cat) {
+    if $cat[0] eq '*' or $category ~~ any (@$cat) {
+      # If there are fieldnames defined then walk through them
+      if $names.elems {
         for ^ $names.elems -> $ui {
           my $cp-entry = "0x$entry[0]";
           $cp-entry ~~ s/ '..' /..0x/;
@@ -314,10 +233,13 @@ sub extract-db ( List $cat, Str $line is copy, Map $names, Hash $data ) {
           $data{$cp-entry}{$names{$ui}} = $entry[$ui] if ? $entry[$ui];
         }
       }
+      
+      # Otherwise assume all to be saved. Name them field0, field1, etc.
+      else {
+        
+      }
     }
-#  }
-
-#  $data;
+  }
 }
 
 #-------------------------------------------------------------------------------
@@ -356,7 +278,7 @@ sub generate-module ( Hash :$data, --> Nil ) {
     $class-text ~= "};\n\n### NEW DATA ###\n";
   }
 
-say "\n$class-text";
+  say "Module $modpath-name generated";
 
   spurt( $fn, $class-text);
 }
