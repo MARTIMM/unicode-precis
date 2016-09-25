@@ -8,6 +8,7 @@ my Str $unicode-db;
 my Bool $table-too;
 my Int $compare-field;
 
+#`{{
 # Search through UnicodeData.txt
 multi sub MAIN (
   'UCD',
@@ -36,10 +37,12 @@ multi sub MAIN (
   # Generate module
   generate-module(:$data);
 }
+}}
 
 # Search through file given by argument. Must a be a file with codepoint(range)
 # first
-multi sub MAIN (
+sub MAIN (
+#multi sub MAIN (
   Str $filename, Str $ucd-dir = '9.0', Str :$mod-name!,
   Str :$cat is copy = '*', Int :$cat-field = 1, Str :$fields = '',
   Bool :$table = False
@@ -58,12 +61,32 @@ multi sub MAIN (
 
   # Go to unicode data dir
   my Map $names .= new( $fields.split(/\h* ',' \h*/).kv );
-say 'Names: ', @$names;
   my Hash $data = {};
 
   die "File $filename not found" unless $$filename.IO ~~ :r;
-  for $filename.IO.lines -> $line {
-    extract-db( $cat.split(/\h* ',' \h*/), $line, $names, $data);
+
+  for $filename.IO.lines -> $line is copy {
+
+    # Comments and empty lines are removed
+    $line ~~ s/ \s* '#' .* $//;
+    if $line !~~ m/^ \h* $/ {
+
+      # Split into the several fields
+      my Array $record = [$line.split(/ \s* ';' \s* /)];
+
+      # Check filename to do special processing of ranges. Ranges in
+      # UnicodeData,txt are started in 2nd field with 'First' and ends
+      # with 'last' which follows immediately on the next line.
+      my Bool $first = False;
+      if $filename eq 'UnicodeData.txt' {
+        $first = ?($record[1] ~~ m/ 'First>' $/);
+      }
+
+      extract-db(
+        $cat.split(/\h* ',' \h*/), $record,
+        $names, $data, :$first
+      );
+    }
   }
 
   # Return to original dir
@@ -141,7 +164,7 @@ sub USAGE ( ) {
 
 
   Examples
-  
+
     > generate-module --mod-name='Controls' --cat='Cc' \
                       --cat-field=2 UnicodeData.txt
 
@@ -152,6 +175,7 @@ sub USAGE ( ) {
   EO-USE
 }
 
+#`{{
 #-------------------------------------------------------------------------------
 # ftp://unicode.org/Public/3.2-Update/UnicodeData-3.2.0.html
 # Field Name                            N/I Explanation
@@ -212,43 +236,63 @@ sub ucd-db ( List :cat($ucd-cat) --> Hash ) {
       elsif $first-of-range-found and $unicode-data-entry[1] ~~ m/ 'Last>' / {
         $first-of-range-found = False;
 
-        my Str $entry = "0x$codepoint-start..0x$unicode-data-entry[0]";
+        my Str $record = "0x$codepoint-start..0x$unicode-data-entry[0]";
         for ^ $ucd-names.elems -> $ui {
-          $unicode-data{$entry}{$ucd-names{$ui}} =
+          $unicode-data{$record}{ $ucd-names{$ui} } =
             $unicode-data-entry[$ui] if ? $unicode-data-entry[$ui];
         }
 
-        $unicode-data{$entry}<codepoint> = $entry;
+        $unicode-data{$record}<codepoint> = $record;
       }
 
       # All else store directly
       else {
-        my Str $entry = "0x$unicode-data-entry[0]";
+        my Str $record = "0x$unicode-data-entry[0]";
         for ^ $ucd-names.elems -> $ui {
-          $unicode-data{$entry}{$ucd-names{$ui}} =
+          $unicode-data{$record}{ $ucd-names{$ui} } =
             $unicode-data-entry[$ui] if ? $unicode-data-entry[$ui];
         }
 
-        $unicode-data{$entry}<codepoint> = $entry;
+        $unicode-data{$record}<codepoint> = $record;
       }
     }
   }
 
   $unicode-data;
 };
+}}
 
 #-------------------------------------------------------------------------------
-sub extract-db ( List $cat, Str $line is copy, Map $names, Hash $data ) {
+sub extract-db (
+  List $cat, Array $record, Map $names, Hash $data,
+  Bool :$first
+) {
 
-  # Comments and empty lines are removed
-  $line ~~ s/ \s* '#' .* $//;
-  if $line !~~ m/^ \h* $/ {
+  state Str $codepoint-start;
+  my Str $category = $record[$compare-field];
 
-    # Split into the several fields
-    my Array $entry = [$line.split(/ \s* ';' \s* /)];
-    my Str $category = $entry[$compare-field];
+  if $cat[0] eq '*' or $category ~~ any (@$cat) {
 
-    if $cat[0] eq '*' or $category ~~ any (@$cat) {
+    # If set, w're reading UnicodeData.txt which has a different way of
+    # range spec
+    if $first {
+      $codepoint-start = $record[0];
+    }
+
+    else {
+
+      my $cp-entry = "0x$record[0]";
+
+      # Only when UnicodeData.txt has shown a start range
+      if $codepoint-start.defined {
+        $cp-entry = "0x$codepoint-start..0x$record[0]";
+        $codepoint-start = Nil;
+      }
+
+      else {
+        $cp-entry ~~ s/ '..' /..0x/;
+      }
+
       # If there are fieldnames defined then walk through them
       if $names.elems {
         for ^ $names.elems -> $ui {
@@ -256,17 +300,12 @@ sub extract-db ( List $cat, Str $line is copy, Map $names, Hash $data ) {
           # skip saving empty fieldnames
           next if $names{$ui} ~~ m/^ \s* $/;
 
-          my $cp-entry = "0x$entry[0]";
-          $cp-entry ~~ s/ '..' /..0x/;
-
-          $data{$cp-entry}{$names{$ui}} = $entry[$ui] if ? $entry[$ui];
+          $data{$cp-entry}{$names{$ui}} = $record[$ui] if ? $record[$ui];
         }
       }
 
       # Otherwise only the codepoint is saved as the key in the Hash.
       else {
-        my $cp-entry = "0x$entry[0]";
-        $cp-entry ~~ s/ '..' /..0x/;
         $data{$cp-entry} = {};
       }
     }
