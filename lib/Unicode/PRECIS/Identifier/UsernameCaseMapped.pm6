@@ -32,15 +32,15 @@ class PRECIS::Identifier::UsernameCaseMapped {
 
   #-----------------------------------------------------------------------------
   # rfc7613 3.2.1.  Preparation
-  method prepare ( Str $s is copy --> TestValue ) {
+  method prepare ( Str $s --> TestValue ) {
 
-    $s = self.apply-rules( $s, ( WidthMap, CaseMap, Norm));
-    return False if $s ~~ Bool;
+    my TestValue $tv = self.apply-rules( $s, ( WidthMap, CaseMap, Norm));
+    return False if $tv ~~ Bool;
 
     # 3.1.  Definition
-    return False unless $s.chars;
+    return False unless $tv.chars;
 
-    self.apply-tests($s);
+    return self.apply-tests($tv) ?? $tv !! False;
   }
 
   #-----------------------------------------------------------------------------
@@ -49,17 +49,18 @@ class PRECIS::Identifier::UsernameCaseMapped {
 
     my TestValue $tv = self.apply-rules( $s, ( WidthMap, CaseMap, Norm, Bidi));
     return False if $tv ~~ Bool;
-    return $tv;
+
+    return self.apply-tests($tv) ?? $tv !! False;
   }
 
   #-----------------------------------------------------------------------------
   # rfc7613 3.2.3.  Comparison
   method compare ( Str $s1, Str $s2 --> Bool ) {
 
-    my TestValue $tv1 = self.prepare($s1);
+    my TestValue $tv1 = self.enforce($s1);
     return False if $tv1 ~~ Bool;
 
-    my TestValue $tv2 = self.prepare($s2);
+    my TestValue $tv2 = self.enforce($s2);
     return False if $tv2 ~~ Bool;
 
     # Perl6 compares in NFC form where (pre)composed characters are forced

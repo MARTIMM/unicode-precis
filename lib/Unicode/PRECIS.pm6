@@ -172,10 +172,10 @@ class PRECIS {
       when WidthMap {
         $tv = self.width-mapping-rule($tv);
       }
-      
+
       # 2.  Additional Mapping Rule
       when AditMap {
-      
+
       }
 
       # 3.  Case Mapping Rule
@@ -198,14 +198,14 @@ class PRECIS {
       # 6.  Behavioral rules for determining whether a code point is valid,
       #     allowed under a contextual rule, disallowed, or unassigned
       when Behave {
-      
+
       }
-      
+
       default {
         die "No such rule: $_";
       }
     }
-    
+
     $tv;
   }
 
