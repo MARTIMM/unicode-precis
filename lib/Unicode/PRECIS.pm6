@@ -9,16 +9,22 @@ unit package Unicode;
 
 class PRECIS {
 
+  # TestValue is used where tests and conversions on strings are done. These
+  # tests can then return False on failure or the string on success.
   subset TestValue is export where $_ ~~ any( Str, Bool);
 
-#  enum Behavioural < Valid ContextJ ContextO Disallowed Unassigned>;
+  # PropValue is the value returned from calculate-value() as a result of
+  # test on a NFC codepoint.
   enum PropValue is export <
     PVALID ID-PVAL FREE-PVAL CONTEXTJ CONTEXTO
     DISALLOWED ID-DIS FREE-DIS UNASSIGNED
 
     NOT-IN-SET
   >;
-#  subset PropValue of Str where $_ (elem) $properties;
+
+  enum Rules is export <WidthMap AditMap CaseMap Norm Bidi Behave>;
+
+#  enum Behavioural < Valid ContextJ ContextO Disallowed Unassigned>;
 
   #-----------------------------------------------------------------------------
   sub mk-map ( Str $map-table --> Hash ) {
@@ -138,28 +144,6 @@ class PRECIS {
   }
 
   #-----------------------------------------------------------------------------
-  method test-string ( Str $s --> Bool ) {
-
-    my Bool $string-ok = True;
-    for $s.NFC -> $codepoint {
-      my PropValue $result = self.calculate-value($codepoint);
-
-      if $result ~~ any(<CONTEXTJ CONTEXTO DISALLOWED ID-DIS UNASSIGNED>) {
-        $string-ok = False;
-        last;
-      }
-    }
-
-    $string-ok;
-  }
-
-  #-----------------------------------------------------------------------------
-  # Method must be implemented in sub classes
-  method calculate-value ( Int $codepoint --> PropValue ) {
-    ...
-  }
-
-  #-----------------------------------------------------------------------------
   # rfc7564 7.  Order of Operations
   #
   #   To ensure proper comparison, the rules specified for a particular
@@ -175,6 +159,57 @@ class PRECIS {
   # 6.  Behavioral rules for determining whether a code point is valid,
   #     allowed under a contextual rule, disallowed, or unassigned
   #
+  #-----------------------------------------------------------------------------
+  # Mapping and other rules
+  method apply-rules( Str $s, List $rule-tests --> TestValue ) {
+
+    my TestValue $tv = $s;
+
+    for @$rule-tests {
+
+      # rfc7564 7.  Order of Operations
+      # 1.  Width Mapping Rule
+      when WidthMap {
+        $tv = self.width-mapping-rule($tv);
+      }
+      
+      # 2.  Additional Mapping Rule
+      when AditMap {
+      
+      }
+
+      # 3.  Case Mapping Rule
+      when CaseMap {
+        $tv = $tv.fc;
+      }
+
+      # 4.  Normalization Rule
+      # Perl6 works in NFC when comparing, setting etc. Displaying graphemes.
+      when Norm {
+        $tv = $tv.NFC.Str;
+      }
+
+      # 5.  Directionality Rule
+      when Bidi {
+        $tv = self.directionality-rule($tv);
+        return False if $tv ~~ Bool;
+      }
+
+      # 6.  Behavioral rules for determining whether a code point is valid,
+      #     allowed under a contextual rule, disallowed, or unassigned
+      when Behave {
+      
+      }
+      
+      default {
+        die "No such rule: $_";
+      }
+    }
+    
+    $tv;
+  }
+
+  #-----------------------------------------------------------------------------
   method width-mapping-rule ( Str $s --> Str ) {
 
     my Str $mapped-s = '';
@@ -196,21 +231,92 @@ class PRECIS {
 
   }
 
-  #-----------------------------------------------------------------------------
-  method case-mapping-rule ( Str $s --> Str ) {
+#  #-----------------------------------------------------------------------------
+#  method case-mapping-rule ( Str $s --> Str ) {
+#
+#    $s.fc;
+#  }
 
-    $s.fc;
-  }
-
-  #-----------------------------------------------------------------------------
-  method normalization-rule ( ) {
-
-  }
+#  #-----------------------------------------------------------------------------
+#  method normalization-rule ( ) {
+#
+#  }
 
   #-----------------------------------------------------------------------------
   # rfc5893 2.  The Bidi Rule
-  method directionality-rule ( Str $s --> Str  ) {
+  method directionality-rule ( Str $s --> TestValue ) {
 
+    my Str @bidi-props = $s.NFC.>>.uniprop('Bidi_Class');
+
+    # rule 1
+    return False unless @bidi-props[0] ~~ any(<L R AL>);
+
+    # if left to right
+    if @bidi-props[0] eq 'L' {
+
+      # rule 5
+      for @bidi-props -> $cp-prop {
+        return False unless $cp-prop ~~ any(<L EN ES CS ET ON BN NSM>);
+      }
+
+      # rule 6
+      my Bool $end-ok = False;
+      for @bidi-props.reverse -> $cp-prop {
+        if $cp-prop ~~ any(<L EN>) {
+          $end-ok = True;
+          last;
+        }
+
+        elsif $cp-prop eq 'NSM' {
+          next;
+        }
+
+        else {
+          last;
+        }
+      }
+
+      return False unless $end-ok;
+    }
+
+    # if right to left
+    else {
+
+      # rule 2
+      for @bidi-props -> $cp-prop {
+        return False unless $cp-prop ~~ any(<R AL AN EN ES CS ET ON BN NSM>);
+      }
+
+      # rule 3
+      my Bool $end-ok = False;
+      for @bidi-props.reverse -> $cp-prop {
+        if $cp-prop ~~ any(<R AL EN AN>) {
+          $end-ok = True;
+          last;
+        }
+
+        elsif $cp-prop eq 'NSM' {
+          next;
+        }
+
+        else {
+          last;
+        }
+      }
+
+      return False unless $end-ok;
+
+      # rule 4
+      my Bool $en = False;
+      my Bool $an = False;
+      for @bidi-props -> $cp-prop {
+        $en = ($en or ($cp-prop eq 'EN'));
+        $an = ($an or ($cp-prop eq 'AN'));
+      }
+      return False if $en and $an;
+    }
+
+    return $s;
   }
 
   #-----------------------------------------------------------------------------
@@ -218,6 +324,31 @@ class PRECIS {
 
   }
 
+
+  #-----------------------------------------------------------------------------
+  # Tests are specific to the Identifier or FreeForm classes or profiles thereof
+  # calculate-value() is used here and must be defined in those classes or
+  # profiles.
+  method apply-tests ( Str $s --> Bool ) {
+
+    my Bool $string-ok = True;
+    for $s.NFC -> $codepoint {
+      my PropValue $result = self.calculate-value($codepoint);
+
+      if $result ~~ any(<CONTEXTJ CONTEXTO DISALLOWED ID-DIS UNASSIGNED>) {
+        $string-ok = False;
+        last;
+      }
+    }
+
+    $string-ok;
+  }
+
+  #-----------------------------------------------------------------------------
+  # Method must be implemented in classes or profiles
+  method calculate-value ( Int $codepoint --> PropValue ) {
+    ...
+  }
 
   #-----------------------------------------------------------------------------
   # 9.1.  LetterDigits (A)

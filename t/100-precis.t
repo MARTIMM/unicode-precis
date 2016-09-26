@@ -22,23 +22,6 @@ subtest {
   is $exceptions{0x00DF}, 'PVALID', 'exceptions check for PVALID';
   is $exceptions{0x0660}, 'CONTEXTO', 'exceptions check for CONTEXTO';
 
-  ok 0xFF67 (elem) $Unicode::PRECIS::Tables::Bidi::set, '0xFF67 in bidi set';
-  ok $Unicode::PRECIS::Tables::Bidi::table<0xFF67>:!exists, '0xFF67 not in table';
-
-  my @a = grep / '..' /, $Unicode::PRECIS::Tables::Bidi::table.keys;
-  my Bool $found = False;
-  my $property;
-  for @a -> $cp-range {
-    if 0xFF67 (elem) $Unicode::PRECIS::Tables::Bidi::table{$cp-range}<codepoint> {
-      $found = True;
-      $property = $Unicode::PRECIS::Tables::Bidi::table{$cp-range}<property>;
-      last;
-    }
-  }
-
-  ok $found, 'Found 0xFF67 in table';
-  is $property, 'L', 'Property of 0xFF67 is L';
-
 }, 'Test tables';
 
 #-------------------------------------------------------------------------------
@@ -185,10 +168,28 @@ subtest {
   is $psid.calculate-value(0x00B4), ID-DIS, 'Disallowed id character';
   is $psid.calculate-value(0x200C), CONTEXTJ, 'Allowed id character in context';
 
-  my TestValue $tv = $psid.prepare('Marcel');
-  ok $tv ~~ Str and $tv eq 'marcel', "test username 'Marcel'";
+  my Str $username = 'Marcel';
+  my TestValue $tv = $psid.prepare($username);
+  ok (($tv ~~ Str) and ($tv eq lc($username))), "test username '$username'";
 
-}, "Test Identifier";
+  $username = 'Marcel Timmerman';
+  $tv = $psid.prepare($username);
+  ok (($tv ~~ Bool) and not $tv), "test username '$username' fails";
+
+  $username = "\x0646\x062c\x0645\x0629-\x0627\x0644\x0635\x0628\x0627\x062d";
+  $tv = $psid.enforce($username);
+  ok (($tv ~~ Str) and ($tv eq $username)), "test username '$username'";
+
+  $username = "\x05d1\x05b7\x05bc\x05e8\x05e7\x05b7\x05d0\x05b4\x05d9";
+  $tv = $psid.enforce($username);
+  ok (($tv ~~ Str) and ($tv eq $username)), "test username '$username'";
+
+  my Str $username1 = "ren\x[00E9]e";
+  my Str $username2 = "rene\x[0301]e";
+  ok $psid.compare( $username1, $username2),
+     "Names $username1 and $username2 compare as being the same";
+
+}, "Test Identifier case mapped profile";
 
 #-------------------------------------------------------------------------------
 done-testing;

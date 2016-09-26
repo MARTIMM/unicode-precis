@@ -34,37 +34,35 @@ class PRECIS::Identifier::UsernameCaseMapped {
   # rfc7613 3.2.1.  Preparation
   method prepare ( Str $s is copy --> TestValue ) {
 
-    $s = self!map-string($s);
+    $s = self.apply-rules( $s, ( WidthMap, CaseMap, Norm));
+    return False if $s ~~ Bool;
 
     # 3.1.  Definition
     return False unless $s.chars;
-    return self.test-string($s) ?? $s.NFC.Str !! False;
+
+    self.apply-tests($s);
   }
 
   #-----------------------------------------------------------------------------
   # rfc7613 3.2.2.  Enforcement
   method enforce ( Str $s --> TestValue ) {
 
-    my TestValue $tv = self.prepare($s);
-    return $tv if $tv ~~ Bool;
-    if $tv ~~ Str {
-    
-      # rfc7613 5.  Directionality Rule:
-      self.directionality-rule($s);
-    }
+    my TestValue $tv = self.apply-rules( $s, ( WidthMap, CaseMap, Norm, Bidi));
+    return False if $tv ~~ Bool;
+    return $tv;
   }
 
   #-----------------------------------------------------------------------------
   # rfc7613 3.2.3.  Comparison
   method compare ( Str $s1, Str $s2 --> Bool ) {
 
-  }
+    my TestValue $tv1 = self.prepare($s1);
+    return False if $tv1 ~~ Bool;
 
-  #-----------------------------------------------------------------------------
-  # Mapping and other rules
-  method !map-string( Str $s is copy --> Str ) {
+    my TestValue $tv2 = self.prepare($s2);
+    return False if $tv2 ~~ Bool;
 
-    $s = self.width-mapping-rule($s);
-    $s = self.case-mapping-rule($s);
+    # Perl6 compares in NFC form where (pre)composed characters are forced
+    return $tv1 eq $tv2;
   }
 }
