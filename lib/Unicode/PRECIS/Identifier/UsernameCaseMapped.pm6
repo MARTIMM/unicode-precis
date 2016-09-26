@@ -24,6 +24,9 @@ use Unicode::PRECIS::Identifier;
 #   lowercase.
 #
 #   Normalization Rule:  NFC.
+#
+#   Specification:  RFC 7613 (this document), Section 3.2.
+#
 #-------------------------------------------------------------------------------
 unit package Unicode;
 

@@ -227,20 +227,11 @@ class PRECIS {
   }
 
   #-----------------------------------------------------------------------------
+  # Must be defined by sub class
   method additional-mapping-rule ( ) {
 
+    ...
   }
-
-#  #-----------------------------------------------------------------------------
-#  method case-mapping-rule ( Str $s --> Str ) {
-#
-#    $s.fc;
-#  }
-
-#  #-----------------------------------------------------------------------------
-#  method normalization-rule ( ) {
-#
-#  }
 
   #-----------------------------------------------------------------------------
   # rfc5893 2.  The Bidi Rule
@@ -320,10 +311,32 @@ class PRECIS {
   }
 
   #-----------------------------------------------------------------------------
+  # Must be defined by sub class
   method behavioural-rule ( ) {
 
+    ...
   }
 
+  #-----------------------------------------------------------------------------
+  # Helper methods to implement some mappings commonly used by classes and
+  # profiles. This can be called from additional-mappings for example.
+  #-----------------------------------------------------------------------------
+  # Map all space codepoints to ASCII space
+  method space-mapping-rule ( Str $s --> Str ) {
+
+    my Str $mapped-s = '';
+    for $s.NFC -> $codepoint {
+      if $codepoint.uniprop-bool('White_Space') {
+        $mapped-s ~= ' ';
+      }
+
+      else {
+        $mapped-s ~= Uni.new($codepoint).Str;
+      }
+    }
+
+    $mapped-s;
+  }
 
   #-----------------------------------------------------------------------------
   # Tests are specific to the Identifier or FreeForm classes or profiles thereof
