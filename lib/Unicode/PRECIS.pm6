@@ -359,6 +359,34 @@ class PRECIS {
   }
 
   #-----------------------------------------------------------------------------
+  # 9.2.  Unstable (B)
+  # Not used in PRECIS
+  method unstable ( Int $codepoint --> Bool ) {
+
+  }
+
+  #-----------------------------------------------------------------------------
+  # 9.3.  IgnorableProperties (C)
+  # Not used in PRECIS
+  method ignorable-properties ( Int $codepoint --> Bool ) {
+
+  }
+
+  #-----------------------------------------------------------------------------
+  # 9.4.  IgnorableBlocks (D)
+  # Not used in PRECIS
+  method ignorable-blocks ( Int $codepoint --> Bool ) {
+
+  }
+
+  #-----------------------------------------------------------------------------
+  # 9.5.  LDH (E)
+  # Not used in PRECIS
+  method ldh ( Int $codepoint --> Bool ) {
+
+  }
+
+  #-----------------------------------------------------------------------------
   # 9.6.  Exceptions (F)
   method exceptions ( Int $codepoint --> PropValue ) {
 
