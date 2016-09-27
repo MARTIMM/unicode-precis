@@ -40,4 +40,11 @@ class PRECIS::Identifier is Unicode::PRECIS {
     elsif self.punctuation($codepoint) { ID-DIS; }
     else { DISALLOWED; }
   }
+
+  #-----------------------------------------------------------------------------
+  method prop-accept ( PropValue $result --> Bool ) {
+
+    # Not ok if any of the list is found
+    $result !~~ any(<CONTEXTJ CONTEXTO DISALLOWED ID-DIS UNASSIGNED>);
+  }
 }

@@ -20,9 +20,11 @@ class PRECIS::FreeForm is Unicode::PRECIS {
   #-----------------------------------------------------------------------------
   method calculate-value ( Int $codepoint --> PropValue ) {
 
-    if $codepoint (elem) $exceptions { self.exceptions($codepoint); }
+    if $codepoint (elem) $Unicode::PRECIS::exceptions {
+      self.exceptions($codepoint);
+    }
 
-    elsif $codepoint (elem) $backwardcompatible {
+    elsif $codepoint (elem) $Unicode::PRECIS::backwardcompatible {
       self.backwardcompatible($codepoint);
     }
 
@@ -39,5 +41,12 @@ class PRECIS::FreeForm is Unicode::PRECIS {
     elsif self.symbol($codepoint) { FREE-PVAL; }
     elsif self.punctuation($codepoint) { FREE-PVAL; }
     else { DISALLOWED; }
+  }
+
+  #-----------------------------------------------------------------------------
+  method prop-accept ( PropValue $result --> Bool ) {
+
+    # Not ok if any of the list is found
+    $result !~~ any(<CONTEXTJ CONTEXTO DISALLOWED ID-DIS UNASSIGNED>);
   }
 }

@@ -352,7 +352,7 @@ class PRECIS {
     for $s.NFC -> $codepoint {
       my PropValue $result = self.calculate-value($codepoint);
 
-      if $result ~~ any(<CONTEXTJ CONTEXTO DISALLOWED ID-DIS UNASSIGNED>) {
+      unless self.prop-accept($result) {
         $string-ok = False;
         last;
       }
@@ -364,6 +364,15 @@ class PRECIS {
   #-----------------------------------------------------------------------------
   # Method must be implemented in classes or profiles
   method calculate-value ( Int $codepoint --> PropValue ) {
+
+    ...
+  }
+
+  #-----------------------------------------------------------------------------
+  # Method must be implemented in classes or profiles
+  # Map the result of calculate-value to True (ok) or False (not ok - reject)
+  method prop-accept ( PropValue $result --> Bool ) {
+
     ...
   }
 
