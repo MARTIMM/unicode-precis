@@ -192,6 +192,33 @@ subtest {
 }, "Test Identifier case mapped profile";
 
 #-------------------------------------------------------------------------------
+subtest {
+
+  my Unicode::PRECIS::Identifier::UsernameCasePreserved $psid .= new;
+  is $psid.calculate-value(0x0050), PVALID, 'Valid id character';
+  is $psid.calculate-value(0x00B4), ID-DIS, 'Disallowed id character';
+  is $psid.calculate-value(0x200C), CONTEXTJ, 'Allowed id character in context';
+
+  my Str $username = 'Marcel';
+  my TestValue $tv = $psid.prepare($username);
+  ok (($tv ~~ Str) and ($tv eq $username)), "test username '$username'";
+
+  $username = 'Marcel Timmerman';
+  $tv = $psid.prepare($username);
+  ok (($tv ~~ Bool) and not $tv), "test username '$username' fails";
+
+  $username = "\x0646\x062c\x0645\x0629-\x0627\x0644\x0635\x0628\x0627\x062d";
+  $tv = $psid.enforce($username);
+  ok (($tv ~~ Str) and ($tv eq $username)), "test username '$username'";
+
+  my Str $username1 = "ren\x[00E9]e";
+  my Str $username2 = "rene\x[0301]e";
+  ok $psid.compare( $username1, $username2),
+     "Names $username1 and $username2 compare as being the same";
+
+}, "Test Identifier case preserved profile";
+
+#-------------------------------------------------------------------------------
 done-testing;
 
 

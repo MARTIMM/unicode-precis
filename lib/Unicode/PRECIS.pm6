@@ -127,14 +127,18 @@ class PRECIS {
   # string class or profile thereof to two separate strings, for the purpose of
   # determining if the two strings are equivalent.
   #
-  # Methods must be implemented in sub classes
+  # Methods must be implemented in sub classes and profiles
+  # When return value is TestValue, the value can be a string or boolean. When
+  # boolean, it is always False and means failure. When successfull, a string
+  # is returned which is the original string but possibly modified.
+  # Compare() returns only boolean of which True means a match.
   #-----------------------------------------------------------------------------
-  method prepare ( Str $s --> Bool ) {
+  method prepare ( Str $s --> TestValue ) {
     ...
   }
 
   #-----------------------------------------------------------------------------
-  method enforce ( Str $s --> Bool ) {
+  method enforce ( Str $s --> TestValue ) {
     ...
   }
 
