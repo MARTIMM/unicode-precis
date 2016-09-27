@@ -14,14 +14,14 @@ Many tests are based on the Unicode® database as well as the unicode tools from
 I've started to study rfc4013 for SASLprep. Then recognized it was a profile based on Stringprep specified in rfc3454. Both are obsoleted by rfc7613 and rfc7564 resp because they are tied to Unicode version 3.2. The newer rfc's are specified to be free of any version.
 
 * rfc3454 - Preparation of Internationalized Strings ("stringprep").
-* rfc7564 - PRECIS Framework: Preparation, Enforcement, and Comparison of Internationalized Strings in Application Protocols. Obsoletes rfc3454.
+* [rfc7564 - PRECIS Framework: Preparation, Enforcement, and Comparison of Internationalized Strings in Application Protocols](https://tools.ietf.org/html/rfc7564#section-4.1). Obsoletes rfc3454.
 
-* rfc4013 - SASLprep: Stringprep Profile for User Names and
-* rfc7613 - Preparation, Enforcement, and Comparison of Internationalized Strings Representing Usernames and Passwords. Obsoletes rfc4013.
+* rfc4013 - SASLprep: Stringprep Profile for User Names and Passwords
+* [rfc7613 - Preparation, Enforcement, and Comparison of Internationalized Strings Representing Usernames and Passwords](https://tools.ietf.org/html/rfc7613#section-3.1). Obsoletes rfc4013.
 
 Further needed information from
-* rfc5892 - The Unicode Code Points and Internationalized Domain Names for Applications (IDNA)
-
+* [rfc5892 - The Unicode Code Points and Internationalized Domain Names for Applications (IDNA)](https://tools.ietf.org/html/rfc5892#section-2.8)
+* [rfc5893 - Right-to-Left Scripts for Internationalized Domain Names for Applications (IDNA)](https://tools.ietf.org/html/rfc5893#section-2)
 Several files are found at the Unicode® Character Database to generate the tables needed to find the proper character classes.
 
 * [UnicodeData.txt]( http://www.unicode.org/Public/9.0.0/ucd/UnicodeData.txt)
