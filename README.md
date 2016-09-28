@@ -64,6 +64,7 @@ This project is tested with latest Rakudo built on MoarVM implementing Perl v6.c
 ## Bugs, known limitations and todo
 * Try to use tables when uniprop is not available
 * Try to use the highest possible unicode version when using tables. At the time of writing this is version 9.0.0.
+* Documentation
 
 ## Changelog
 
@@ -71,6 +72,11 @@ See [semantic versioning](http://semver.org/). Please note point 4. on
 that page: *Major version zero (0.y.z) is for initial development. Anything may
 change at any time. The public API should not be considered stable.*
 
+* 0.5.0
+  * Implemented FreeForm class
+  * Implemented OpaqueString profile
+* 0.4.0
+  * Implemented UsernameCasePreserved profile
 * 0.3.0
   * Build PRECIS framework
   * Implemented Identifier class
@@ -94,4 +100,4 @@ Marcel Timmerman translation of the modules for perl 6
 ```
 ## Contact
 
-MARTIMM on github: MARTIMM
+MARTIMM [on github](https://github.com/MARTIMM)

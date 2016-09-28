@@ -5,6 +5,7 @@ use Unicode::PRECIS;
 use Unicode::PRECIS::Tables;
 use Unicode::PRECIS::Identifier::UsernameCaseMapped;
 use Unicode::PRECIS::Identifier::UsernameCasePreserved;
+use Unicode::PRECIS::FreeForm::OpaqueString;
 
 #-------------------------------------------------------------------------------
 subtest {
@@ -169,12 +170,9 @@ subtest {
   is $psid.calculate-value(0x200C), CONTEXTJ, 'Allowed id character in context';
 
   my Str $username = 'Marcel';
+  my Str $mod-uname = lc($username);
   my TestValue $tv = $psid.prepare($username);
-  ok (($tv ~~ Str) and ($tv eq lc($username))), "test username '$username'";
-
-  $username = 'Marcel Timmerman';
-  $tv = $psid.prepare($username);
-  ok (($tv ~~ Bool) and not $tv), "test username '$username' fails";
+  ok (($tv ~~ Str) and ($tv eq $mod-uname)), "test username '$username'";
 
   $username = "\x0646\x062c\x0645\x0629-\x0627\x0644\x0635\x0628\x0627\x062d";
   $tv = $psid.enforce($username);
@@ -184,17 +182,134 @@ subtest {
   $tv = $psid.enforce($username);
   ok (($tv ~~ Str) and ($tv eq $username)), "test username '$username'";
 
+  # Examples from rfc7613 3.6 1
+  $username = 'juliet@example.com';
+  $tv = $psid.prepare($username);
+  ok (($tv ~~ Str) and ($tv eq $username)), "test username '$username'";
+
+  # Examples from rfc7613 3.6 3
+  $username = "fu\x[00DF]ball";
+  $mod-uname = 'fussball';
+  $tv = $psid.enforce($username);
+  ok (($tv ~~ Str) and ($tv eq $mod-uname)), "test username '$username'";
+
+  # Examples from rfc7613 3.6 4-7
+  $username = "\x03C0\x03A3\x03C3\x03C2";
+  $mod-uname = "\x03C0\x03C3\x03C3\x03C3";
+  $tv = $psid.enforce($username);
+  ok (($tv ~~ Str) and ($tv eq $mod-uname)), "test username '$username'";
+
+  # Examples from rfc7613 3.6 8
+  $username = 'Marcel Timmerman';
+  $tv = $psid.prepare($username);
+  ok (($tv ~~ Bool) and not $tv), "test username '$username' fails";
+
+  # Examples from rfc7613 3.6 9
+  $username = '';
+  $tv = $psid.prepare($username);
+  ok (($tv ~~ Bool) and not $tv), "test username '$username' fails";
+
+  # Examples from rfc7613 3.6 10
+  $username = "henry\x2163";
+  $tv = $psid.prepare($username);
+  ok (($tv ~~ Bool) and not $tv), "test username '$username' fails";
+
+  # Examples from rfc7613 3.6 11
+  $username = "\x265A";
+  $tv = $psid.prepare($username);
+  ok (($tv ~~ Bool) and not $tv), "test username '$username' fails";
+
   my Str $username1 = "ren\x[00E9]e";
   my Str $username2 = "rene\x[0301]e";
+  ok $psid.compare( $username1, $username2),
+     "Names $username1 and $username2 compare as being the same";
+
+  $username2 = "Rene\x[0301]e";
   ok $psid.compare( $username1, $username2),
      "Names $username1 and $username2 compare as being the same";
 
 }, "Test Identifier case mapped profile";
 
 #-------------------------------------------------------------------------------
+subtest {
+
+  my Unicode::PRECIS::Identifier::UsernameCasePreserved $psid .= new;
+  is $psid.calculate-value(0x0050), PVALID, 'Valid id character';
+  is $psid.calculate-value(0x00B4), ID-DIS, 'Disallowed id character';
+  is $psid.calculate-value(0x200C), CONTEXTJ, 'Allowed id character in context';
+
+  my Str $username = 'Marcel';
+  my TestValue $tv = $psid.prepare($username);
+  ok (($tv ~~ Str) and ($tv eq $username)), "test username '$username'";
+
+  $username = 'Marcel Timmerman';
+  $tv = $psid.prepare($username);
+  ok (($tv ~~ Bool) and not $tv), "test username '$username' fails";
+
+  $username = "\x0646\x062c\x0645\x0629-\x0627\x0644\x0635\x0628\x0627\x062d";
+  $tv = $psid.enforce($username);
+  ok (($tv ~~ Str) and ($tv eq $username)), "test username '$username'";
+
+  my Str $username1 = "ren\x[00E9]e";
+  my Str $username2 = "rene\x[0301]e";
+  ok $psid.compare( $username1, $username2),
+     "Names $username1 and $username2 compare as being the same";
+
+  $username2 = "Rene\x[0301]e";
+  nok $psid.compare( $username1, $username2),
+     "Names $username1 and $username2 compare as not the same";
+
+}, "Test Identifier case preserved profile";
+
+#-------------------------------------------------------------------------------
+subtest {
+
+  my Unicode::PRECIS::FreeForm::OpaqueString $psff .= new;
+  is $psff.calculate-value(0x0050), PVALID, 'Valid free form character';
+  is $psff.calculate-value(0x00B4), FREE-PVAL, 'Disallowed free form character';
+  is $psff.calculate-value(0x200C), CONTEXTJ, 'Allowed id character in context';
+  is $psff.calculate-value(0x3000), FREE-PVAL, 'Disallowed free form character';
+
+  # Examples from rfc7613 4.3 12
+  my Str $password = 'correct horse battery staple';
+  my TestValue $tv = $psff.prepare($password);
+  ok (($tv ~~ Str) and ($tv eq $password)), "test password '$tv'";
+
+  # Examples from rfc7613 4.3 13
+  $password = 'Correct Horse Battery Staple';
+  $tv = $psff.prepare($password);
+  ok (($tv ~~ Str) and ($tv eq $password)), "test password '$tv'";
+
+  # Examples from rfc7613 4.3 14
+  $password = "\x03C0\x00DF\x00E5";
+  $tv = $psff.prepare($password);
+  ok (($tv ~~ Str) and ($tv eq $password)), "test password '$tv'";
+
+  # Examples from rfc7613 4.3 15
+  $password = "Jack of \x2666";
+  $tv = $psff.prepare($password);
+  ok (($tv ~~ Str) and ($tv eq $password)), "test password '$tv'";
+
+  # Examples from rfc7613 4.3 16
+  $password = "Foo\x[1680]Bar";
+  my Str $password2 = "Foo Bar";
+  $tv = $psff.enforce($password);
+  ok (($tv ~~ Str) and ($tv eq $password2)), "test password '$tv'";
+
+  # Examples from rfc7613 4.3 17
+  $password = "my cat is a \x[0009]by";
+  $tv = $psff.enforce($password);
+  ok (($tv ~~ Bool) and not $tv), "test password '$password' fails";
+
+  $password = 'Upper Case';
+  $tv = $psff.compare( $password, lc($password));
+  ok !$tv, 'Passwords not equal';
+  
+
+}, "Test Identifier case preserved profile";
+
+#-------------------------------------------------------------------------------
 done-testing;
-
-
 
 #-------------------------------------------------------------------------------
 sub test-match ( Int $codepoint, Str $category) {

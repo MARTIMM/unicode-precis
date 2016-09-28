@@ -127,14 +127,18 @@ class PRECIS {
   # string class or profile thereof to two separate strings, for the purpose of
   # determining if the two strings are equivalent.
   #
-  # Methods must be implemented in sub classes
+  # Methods must be implemented in sub classes and profiles
+  # When return value is TestValue, the value can be a string or boolean. When
+  # boolean, it is always False and means failure. When successfull, a string
+  # is returned which is the original string but possibly modified.
+  # Compare() returns only boolean of which True means a match.
   #-----------------------------------------------------------------------------
-  method prepare ( Str $s --> Bool ) {
+  method prepare ( Str $s --> TestValue ) {
     ...
   }
 
   #-----------------------------------------------------------------------------
-  method enforce ( Str $s --> Bool ) {
+  method enforce ( Str $s --> TestValue ) {
     ...
   }
 
@@ -175,7 +179,7 @@ class PRECIS {
 
       # 2.  Additional Mapping Rule
       when AditMap {
-
+        $tv = self.additional-mapping-rule($tv);
       }
 
       # 3.  Case Mapping Rule
@@ -228,7 +232,7 @@ class PRECIS {
 
   #-----------------------------------------------------------------------------
   # Must be defined by sub class
-  method additional-mapping-rule ( ) {
+  method additional-mapping-rule ( Str $s --> Str ) {
 
     ...
   }
@@ -326,7 +330,7 @@ class PRECIS {
 
     my Str $mapped-s = '';
     for $s.NFC -> $codepoint {
-      if $codepoint.uniprop-bool('White_Space') {
+      if $codepoint.uniprop eq 'Zs' {
         $mapped-s ~= ' ';
       }
 
@@ -348,7 +352,7 @@ class PRECIS {
     for $s.NFC -> $codepoint {
       my PropValue $result = self.calculate-value($codepoint);
 
-      if $result ~~ any(<CONTEXTJ CONTEXTO DISALLOWED ID-DIS UNASSIGNED>) {
+      unless self.prop-accept($result) {
         $string-ok = False;
         last;
       }
@@ -360,6 +364,15 @@ class PRECIS {
   #-----------------------------------------------------------------------------
   # Method must be implemented in classes or profiles
   method calculate-value ( Int $codepoint --> PropValue ) {
+
+    ...
+  }
+
+  #-----------------------------------------------------------------------------
+  # Method must be implemented in classes or profiles
+  # Map the result of calculate-value to True (ok) or False (not ok - reject)
+  method prop-accept ( PropValue $result --> Bool ) {
+
     ...
   }
 

@@ -1,4 +1,5 @@
 use v6.c;
+use Unicode::PRECIS;
 use Unicode::PRECIS::Identifier;
 
 #-------------------------------------------------------------------------------
@@ -38,19 +39,43 @@ class PRECIS::Identifier::UsernameCasePreserved {
 
   #-----------------------------------------------------------------------------
   # rfc7613 3.3.1.  Preparation
-  method prepare ( Str $s --> Bool ) {
+  method prepare ( Str $s --> TestValue ) {
 
+    my TestValue $tv = self.apply-rules( $s, ( WidthMap, Norm));
+    return False if $tv ~~ Bool;
+
+    # rfc7613 3.1.  Definition
+    # Check that strings are not empty
+    return False unless $tv.chars;
+
+    return self.apply-tests($tv) ?? $tv !! False;
   }
 
   #-----------------------------------------------------------------------------
   # rfc7613 3.3.2.  Enforcement
-  method enforce ( Str $s --> Bool ) {
+  method enforce ( Str $s --> TestValue ) {
 
+    my TestValue $tv = self.apply-rules( $s, ( WidthMap, Norm, Bidi));
+    return False if $tv ~~ Bool;
+
+    # rfc7613 3.1.  Definition
+    # Check that strings are not empty
+    return False unless $tv.chars;
+
+    return self.apply-tests($tv) ?? $tv !! False;
   }
 
   #-----------------------------------------------------------------------------
   # rfc7613 3.3.3.  Comparison
   method compare ( Str $s1, Str $s2 --> Bool ) {
 
+    my TestValue $tv1 = self.enforce($s1);
+    return False if $tv1 ~~ Bool;
+
+    my TestValue $tv2 = self.enforce($s2);
+    return False if $tv2 ~~ Bool;
+
+    # Perl6 compares in NFC form where (pre)composed characters are forced
+    return $tv1 eq $tv2;
   }
 }
