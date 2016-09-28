@@ -170,8 +170,9 @@ subtest {
   is $psid.calculate-value(0x200C), CONTEXTJ, 'Allowed id character in context';
 
   my Str $username = 'Marcel';
+  my Str $mod-uname = lc($username);
   my TestValue $tv = $psid.prepare($username);
-  ok (($tv ~~ Str) and ($tv eq lc($username))), "test username '$username'";
+  ok (($tv ~~ Str) and ($tv eq $mod-uname)), "test username '$username'";
 
   $username = 'Marcel Timmerman';
   $tv = $psid.prepare($username);
@@ -192,14 +193,15 @@ subtest {
 
   # Examples from rfc7613 3.6 3
   $username = "fu\x[00DF]ball";
+  $mod-uname = 'fussball';
   $tv = $psid.enforce($username);
-  ok (($tv ~~ Str) and ($tv eq 'fussball')), "test username '$username'";
+  ok (($tv ~~ Str) and ($tv eq $mod-uname)), "test username '$username'";
 
   # Examples from rfc7613 3.6 4-7
   $username = "\x03C0\x03A3\x03C3\x03C2";
+  $mod-uname = "\x03C0\x03C3\x03C3\x03C3";
   $tv = $psid.enforce($username);
-say "1: $tv";
-  ok (($tv ~~ Str) and ($tv eq $username)), "test username '$username'";
+  ok (($tv ~~ Str) and ($tv eq $mod-uname)), "test username '$username'";
 
   my Str $username1 = "ren\x[00E9]e";
   my Str $username2 = "rene\x[0301]e";
