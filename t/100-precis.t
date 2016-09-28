@@ -5,6 +5,7 @@ use Unicode::PRECIS;
 use Unicode::PRECIS::Tables;
 use Unicode::PRECIS::Identifier::UsernameCaseMapped;
 use Unicode::PRECIS::Identifier::UsernameCasePreserved;
+use Unicode::PRECIS::FreeForm::OpaqueString;
 
 #-------------------------------------------------------------------------------
 subtest {
@@ -184,8 +185,28 @@ subtest {
   $tv = $psid.enforce($username);
   ok (($tv ~~ Str) and ($tv eq $username)), "test username '$username'";
 
+  # Examples from rfc7613 3.6 1
+  $username = 'juliet@example.com';
+  $tv = $psid.prepare($username);
+  ok (($tv ~~ Str) and ($tv eq $username)), "test username '$username'";
+
+  # Examples from rfc7613 3.6 3
+  $username = "fu\x[00DF]ball";
+  $tv = $psid.enforce($username);
+  ok (($tv ~~ Str) and ($tv eq 'fussball')), "test username '$username'";
+
+  # Examples from rfc7613 3.6 4-7
+  $username = "\x03C0\x03A3\x03C3\x03C2";
+  $tv = $psid.enforce($username);
+say "1: $tv";
+  ok (($tv ~~ Str) and ($tv eq $username)), "test username '$username'";
+
   my Str $username1 = "ren\x[00E9]e";
   my Str $username2 = "rene\x[0301]e";
+  ok $psid.compare( $username1, $username2),
+     "Names $username1 and $username2 compare as being the same";
+
+  $username2 = "Rene\x[0301]e";
   ok $psid.compare( $username1, $username2),
      "Names $username1 and $username2 compare as being the same";
 
@@ -216,12 +237,43 @@ subtest {
   ok $psid.compare( $username1, $username2),
      "Names $username1 and $username2 compare as being the same";
 
+  $username2 = "Rene\x[0301]e";
+  nok $psid.compare( $username1, $username2),
+     "Names $username1 and $username2 compare as not the same";
+
+}, "Test Identifier case preserved profile";
+
+#-------------------------------------------------------------------------------
+subtest {
+
+  my Unicode::PRECIS::FreeForm::OpaqueString $psid .= new;
+  is $psid.calculate-value(0x0050), PVALID, 'Valid free form character';
+  is $psid.calculate-value(0x00B4), FREE-PVAL, 'Disallowed free form character';
+  is $psid.calculate-value(0x200C), CONTEXTJ, 'Allowed id character in context';
+  is $psid.calculate-value(0x3000), FREE-PVAL, 'Disallowed free form character';
+#`{{
+  my Str $username = 'Marcel';
+  my TestValue $tv = $psid.prepare($username);
+  ok (($tv ~~ Str) and ($tv eq $username)), "test username '$username'";
+
+  $username = 'Marcel Timmerman';
+  $tv = $psid.prepare($username);
+  ok (($tv ~~ Bool) and not $tv), "test username '$username' fails";
+
+  $username = "\x0646\x062c\x0645\x0629-\x0627\x0644\x0635\x0628\x0627\x062d";
+  $tv = $psid.enforce($username);
+  ok (($tv ~~ Str) and ($tv eq $username)), "test username '$username'";
+
+  my Str $username1 = "ren\x[00E9]e";
+  my Str $username2 = "rene\x[0301]e";
+  ok $psid.compare( $username1, $username2),
+     "Names $username1 and $username2 compare as being the same";
+
+}}
 }, "Test Identifier case preserved profile";
 
 #-------------------------------------------------------------------------------
 done-testing;
-
-
 
 #-------------------------------------------------------------------------------
 sub test-match ( Int $codepoint, Str $category) {

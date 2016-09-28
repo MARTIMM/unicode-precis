@@ -1,4 +1,5 @@
 use v6.c;
+use Unicode::PRECIS;
 use Unicode::PRECIS::FreeForm;
 
 #-------------------------------------------------------------------------------
@@ -38,13 +39,13 @@ class PRECIS::FreeForm::OpaqueString {
 
   #-----------------------------------------------------------------------------
   # rfc7613 4.2.1.  Preparation
-  method prepare ( Str $s --> Bool ) {
+  method prepare ( Str $s --> TestValue ) {
 
   }
 
   #-----------------------------------------------------------------------------
   # rfc7613 4.2.2.  Enforcement
-  method enforce ( Str $s --> Bool ) {
+  method enforce ( Str $s --> TestValue ) {
 
   }
 
