@@ -2,11 +2,26 @@
 
 # PRECIS Framework: Preparation, Enforcement, and Comparison of Internationalized Strings in Application Protocols
 
-Many tests are based on the Unicode® database as well as the unicode tools from perl6. Not all methods and functions are in place e.g. uniprop() is not yet available in the jvm. Also perl6 seems to be based on Unicode version 8.0.0.
+Many tests are based on the Unicode® database as well as the unicode tools from perl6. Not all methods and functions are in place e.g. uniprop() is not yet available in the jvm. Also perl6 seems to be based on Unicode version 8.0.0 but is scheduled for 9.0.0.
 
 ## Synopsis
 
 ```
+use Unicode::PRECIS;
+use Unicode::PRECIS::Identifier::UsernameCasePreserved;
+
+my Unicode::PRECIS::Identifier::UsernameCaseMapped $uname-profile .= new;
+
+my Str $username = "نجمة-الصباح";
+my TestValue $tv = $uname-profile.enforce($username);
+if $tv ~~ Str {
+  say "Username $username accepted but converted to $tv";
+}
+
+elsif $tv ~~ Bool {
+  say "Username not accepted";
+}
+
 ```
 
 ### RFC's and other sources
