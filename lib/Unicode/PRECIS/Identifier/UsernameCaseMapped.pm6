@@ -40,6 +40,7 @@ class PRECIS::Identifier::UsernameCaseMapped {
     my TestValue $tv = self.apply-rules( $s, ( WidthMap, CaseMap, Norm));
     return False if $tv ~~ Bool;
 
+    # rfc7613 3.1.  Definition
     # Check that strings are not empty
     return False unless $tv.chars;
 
@@ -53,6 +54,7 @@ class PRECIS::Identifier::UsernameCaseMapped {
     my TestValue $tv = self.apply-rules( $s, ( WidthMap, CaseMap, Norm, Bidi));
     return False if $tv ~~ Bool;
 
+    # rfc7613 3.1.  Definition
     # Check that strings are not empty
     return False unless $tv.chars;
 

@@ -42,6 +42,7 @@ class PRECIS::Identifier is Unicode::PRECIS {
   }
 
   #-----------------------------------------------------------------------------
+  # rfc7613 3.1.  Definition
   method prop-accept ( PropValue $result --> Bool ) {
 
     # Not ok if any of the list is found

@@ -179,7 +179,7 @@ class PRECIS {
 
       # 2.  Additional Mapping Rule
       when AditMap {
-
+        $tv = self.additional-mapping-rule($tv);
       }
 
       # 3.  Case Mapping Rule
@@ -232,7 +232,7 @@ class PRECIS {
 
   #-----------------------------------------------------------------------------
   # Must be defined by sub class
-  method additional-mapping-rule ( ) {
+  method additional-mapping-rule ( Str $s --> Str ) {
 
     ...
   }
@@ -330,7 +330,7 @@ class PRECIS {
 
     my Str $mapped-s = '';
     for $s.NFC -> $codepoint {
-      if $codepoint.uniprop-bool('White_Space') {
+      if $codepoint.uniprop eq 'Zs' {
         $mapped-s ~= ' ';
       }
 

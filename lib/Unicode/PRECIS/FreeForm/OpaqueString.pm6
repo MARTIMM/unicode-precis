@@ -41,17 +41,48 @@ class PRECIS::FreeForm::OpaqueString {
   # rfc7613 4.2.1.  Preparation
   method prepare ( Str $s --> TestValue ) {
 
+    my TestValue $tv = self.apply-rules( $s, (Norm,));
+    return False if $tv ~~ Bool;
+
+    # rfc 7613 4.1.  Definition
+    # Check that strings are not empty
+    return False unless $tv.chars;
+
+    return self.apply-tests($tv) ?? $tv !! False;
   }
 
   #-----------------------------------------------------------------------------
   # rfc7613 4.2.2.  Enforcement
   method enforce ( Str $s --> TestValue ) {
 
+    my TestValue $tv = self.apply-rules( $s, ( AditMap, Norm));
+    return False if $tv ~~ Bool;
+
+    # rfc 7613 4.1.  Definition
+    # Check that strings are not empty
+    return False unless $tv.chars;
+
+    return self.apply-tests($tv) ?? $tv !! False;
   }
 
   #-----------------------------------------------------------------------------
   # rfc7613 4.2.3.  Comparison
   method compare ( Str $s1, Str $s2 --> Bool ) {
 
+    my TestValue $tv1 = self.enforce($s1);
+    return False if $tv1 ~~ Bool;
+
+    my TestValue $tv2 = self.enforce($s2);
+    return False if $tv2 ~~ Bool;
+
+    # Perl6 compares in NFC form where (pre)composed characters are forced
+    return $tv1 eq $tv2;
+  }
+
+  #-----------------------------------------------------------------------------
+  # Must be defined by sub class
+  method additional-mapping-rule ( Str $s --> Str ) {
+
+    self.space-mapping-rule($s);
   }
 }

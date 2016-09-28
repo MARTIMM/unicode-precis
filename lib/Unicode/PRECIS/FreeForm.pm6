@@ -44,6 +44,7 @@ class PRECIS::FreeForm is Unicode::PRECIS {
   }
 
   #-----------------------------------------------------------------------------
+  # rfc7613 4.1.  Definition
   method prop-accept ( PropValue $result --> Bool ) {
 
     # Not ok if any of the list is found
