@@ -36,7 +36,7 @@ class PRECIS {
       next if $line ~~ m:s/^ \s* $/;
 
       ( my Str $codepoint, my Str $property, my Str $comment
-      ) = $line.split(/[';'\s+]|[\s+\#\s+]/); 
+      ) = $line.split(/[';'\s+]|[\s+\#\s+]/);
 
       $data{:16($codepoint)} = PropValue::{$property};
     }
@@ -430,7 +430,7 @@ class PRECIS {
   # 9.8.  JoinControl (H)
   method join-control ( Int $codepoint --> Bool ) {
 
-    $codepoint.uniprop-bool('Join_Control');
+    $codepoint.uniprop('Join_Control');
   }
 
   #-----------------------------------------------------------------------------
@@ -467,7 +467,7 @@ class PRECIS {
   # 9.13.  PrecisIgnorableProperties (M)
   method precis-ignorable-properties ( Int $codepoint --> Bool ) {
 
-    $codepoint.uniprop-bool('Default_Ignorable_Code_Point')
+    $codepoint.uniprop('Default_Ignorable_Code_Point')
     or ($codepoint (elem) $Unicode::PRECIS::Tables::NonCharCodepoint::set);
   }
 
